@@ -20,7 +20,11 @@ export type ModLesson = ILesson & {
 };
 const timeSlotHeight = 3; // 3rem
 
-export default async function TimetableDiv({modIndexes}: {modIndexes: ModIndex[]}) {
+export default async function TimetableDiv({
+  modIndexes,
+}: {
+  modIndexes: ModIndex[];
+}) {
   console.log(`Rendering timetable with ${modIndexes.length} modules`);
   const { days, times, grid } = createTimeGrid();
 
@@ -51,31 +55,32 @@ export default async function TimetableDiv({modIndexes}: {modIndexes: ModIndex[]
   const columns = mapLessonColumns(grid);
 
   return (
-    <div className="flex flex-col w-full">
-      <div className="grid grid-cols-[5rem_repeat(6,_1fr)] text-center font-bold">
-        <div></div>
-        {days.map((day) => (
-          <div key={"header" + day} className="py-6">
-            {day}
+    <div className="flex w-full ">
+      {/* Time slots on the left */}
+      <div className="flex flex-col w-20 text-right text-sm mt-18">
+        {times.map((time) => (
+          <div key={time} className="h-[3rem] border-b border-gray-300">
+            {time}
           </div>
         ))}
       </div>
-      <div className="flex">
-        <div className="flex flex-col w-20 text-right text-sm">
-          {times.map((time) => (
-            <div key={time} className="h-[3rem] border-b border-gray-300">
-              {time}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-6 w-full">
+      {/* Right side: Days and columns */}
+      <div className="flex flex-col w-full">
+        {/* Timetable Main Grid */}
+        <div className="flex w-full h-full ">
           {days.map((day) => (
             <div
               key={day + "column"}
-              className="relative border-r border-gray-300"
+              className="relative flex-1 border-r border-gray-300 h-full"
             >
+              <div
+                key={"header" + day}
+                className="flex-1 p-6 border-r border-gray-300 text-center font-bold"
+              >
+                {day}
+              </div>
               {/* Background stripes for each time slot */}
-              <div className="flex flex-col justify-start items-start h-full">
+              <div className="absolute flex flex-col justify-start items-start h-full w-full top-18 left-0 z-0">
                 {times.slice(0, times.length / 2).map((_, i) => (
                   <div
                     key={"bg" + i}
@@ -86,28 +91,44 @@ export default async function TimetableDiv({modIndexes}: {modIndexes: ModIndex[]
                 ))}
               </div>
               {/*Column Container*/}
-              <div className="absolute flex top-0 left-0 w-full h-full gap-1">
-                {columns[day].map((column, colIndex) => (
-                  <div
-                    // each column is a flex container for the lessons
-                    key={"column" + colIndex}
-                    className={`relative w-full h-full flex-grow`}
-                  >
-                    {column.map((lesson, lessonIndex) => {
-                      // render each lesson block in the column
-                      const { startTime } = parseLessonTiming(lesson).timeRange;
-                      const startIdx = times.indexOf(startTime);
-                      return (
-                        <LessonBlock
-                          key={lesson.courseName + lesson.index + lessonIndex}
-                          lesson={lesson}
-                          top={startIdx * timeSlotHeight}
-                          height={lesson.rowSpan * timeSlotHeight}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
+              <div className="relative top-0 left-0 w-full h-full gap-1">
+                <div className="relative flex gap-1 w-full h-full">
+                  {columns[day].map((column, colIndex) => (
+                    <div
+                      // each column is a flex container for the lessons
+                      key={"column" + colIndex}
+                      className="relative w-full h-full flex-grow min-w-24"
+                    >
+                      {column.map((lesson, lessonIndex) => {
+                        // render each lesson block in the column
+                        const { startTime } =
+                          parseLessonTiming(lesson).timeRange;
+                        let yOffset = times.indexOf(startTime);
+                        if (lessonIndex > 0) {
+                          yOffset += 0.8 / timeSlotHeight; // offset the slightly smaller lesson blocks
+                          const prevLesson = column[lessonIndex - 1];
+                          const { endTime } =
+                            parseLessonTiming(prevLesson).timeRange;
+                          // ntu timeslots end at xx:20, add 10 minutes to get the next timeslot
+                          if (endTime[-2] != "3") {
+                            const endTimeAdjusted = (parseInt(endTime) + 10)
+                              .toString()
+                              .padStart(4, "0");
+                            yOffset -= times.indexOf(endTimeAdjusted);
+                          }
+                        }
+                        return (
+                          <LessonBlock
+                            key={lesson.courseName + lesson.index + lessonIndex}
+                            lesson={lesson}
+                            top={yOffset * timeSlotHeight}
+                            height={lesson.rowSpan * timeSlotHeight - 0.8} // slightly smaller height
+                          />
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
