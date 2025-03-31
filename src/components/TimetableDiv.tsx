@@ -12,18 +12,16 @@ type ModIndex = {
   lessons: ILesson[];
 };
 // Represents the specific lesson of each mod + index
-export type ModLesson = {
+export type ModLesson = ILesson & {
   courseName: string;
   courseCode: string;
   index: string;
-  lesson: ILesson;
   rowSpan: number;
 };
 const timeSlotHeight = 3; // 3rem
 
-function Timetable({ modIndexes }: { modIndexes: ModIndex[] }) {
+export default async function TimetableDiv({modIndexes}: {modIndexes: ModIndex[]}) {
   console.log(`Rendering timetable with ${modIndexes.length} modules`);
-
   const { days, times, grid } = createTimeGrid();
 
   // populate the grid with lessons
@@ -35,19 +33,29 @@ function Timetable({ modIndexes }: { modIndexes: ModIndex[] }) {
           timeRange: { startTime, startMinutes, endMinutes },
         } = parseLessonTiming(lesson);
         const rowSpan = Math.ceil((endMinutes - startMinutes) / 30);
-
-        grid[day][startTime].push({ ...mod, lesson, rowSpan });
+        grid[day][startTime].push({
+          courseName: mod.courseName,
+          courseCode: mod.courseCode,
+          index: mod.index,
+          lesson_type: lesson.lesson_type,
+          group: lesson.group,
+          day: lesson.day,
+          time: lesson.time,
+          venue: lesson.venue,
+          remark: lesson.remark,
+          rowSpan,
+        });
       });
     }
   });
   const columns = mapLessonColumns(grid);
-  
+
   return (
     <div className="flex flex-col w-full">
       <div className="grid grid-cols-[5rem_repeat(6,_1fr)] text-center font-bold">
         <div></div>
         {days.map((day) => (
-          <div key={day} className="py-6">
+          <div key={"header" + day} className="py-6">
             {day}
           </div>
         ))}
@@ -62,12 +70,15 @@ function Timetable({ modIndexes }: { modIndexes: ModIndex[] }) {
         </div>
         <div className="grid grid-cols-6 w-full">
           {days.map((day) => (
-            <div key={day} className="relative border-r border-gray-300">
+            <div
+              key={day + "column"}
+              className="relative border-r border-gray-300"
+            >
               {/* Background stripes for each time slot */}
               <div className="flex flex-col justify-start items-start h-full">
                 {times.slice(0, times.length / 2).map((_, i) => (
                   <div
-                    key={i}
+                    key={"bg" + i}
                     className={`h-[calc(6rem)] w-full ${
                       i % 2 === 0 ? "bg-secondary" : "bg-background"
                     }`}
@@ -79,18 +90,16 @@ function Timetable({ modIndexes }: { modIndexes: ModIndex[] }) {
                 {columns[day].map((column, colIndex) => (
                   <div
                     // each column is a flex container for the lessons
-                    key={colIndex}
+                    key={"column" + colIndex}
                     className={`relative w-full h-full flex-grow`}
                   >
                     {column.map((lesson, lessonIndex) => {
                       // render each lesson block in the column
-                      const { startTime } = parseLessonTiming(
-                        lesson.lesson
-                      ).timeRange;
+                      const { startTime } = parseLessonTiming(lesson).timeRange;
                       const startIdx = times.indexOf(startTime);
                       return (
                         <LessonBlock
-                          key={lessonIndex}
+                          key={lesson.courseName + lesson.index + lessonIndex}
                           lesson={lesson}
                           top={startIdx * timeSlotHeight}
                           height={lesson.rowSpan * timeSlotHeight}
@@ -107,5 +116,3 @@ function Timetable({ modIndexes }: { modIndexes: ModIndex[] }) {
     </div>
   );
 }
-
-export default Timetable;

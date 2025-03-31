@@ -18,33 +18,33 @@ export function mapLessonColumns(
   }
   return columns;
 }
+
 /**
  *
  * @param lessons
  * @returns The columns for each day in format: [[Lesson1, lesson 2], [Lesson3, lesson4]] where each array is a column of lessons
  */
+
 const groupLessonsByColumns = (lessons: ModLesson[]): ModLesson[][] => {
   const columns: ModLesson[][] = [];
-
   lessons
     .sort((a, b) => {
-      const aStart = parseLessonTiming(a.lesson).timeRange.startMinutes;
-      const bStart = parseLessonTiming(b.lesson).timeRange.startMinutes;
+      const aStart = parseLessonTiming(a).timeRange.startMinutes;
+      const bStart = parseLessonTiming(b).timeRange.startMinutes;
       return aStart - bStart;
     })
     .forEach((lesson) => {
-      const { timeRange } = parseLessonTiming(lesson.lesson);
+      const { timeRange } = parseLessonTiming(lesson);
 
       let placed = false;
-
       for (const column of columns) {
         // Check if this lesson can fit in an existing column (no overlap)
         if (
           column.every(
             (l) =>
-              parseLessonTiming(l.lesson).timeRange.endMinutes <=
+              parseLessonTiming(l).timeRange.endMinutes <=
                 timeRange.startMinutes ||
-              parseLessonTiming(l.lesson).timeRange.startMinutes >=
+              parseLessonTiming(l).timeRange.startMinutes >=
                 timeRange.endMinutes
           )
         ) {
@@ -53,7 +53,6 @@ const groupLessonsByColumns = (lessons: ModLesson[]): ModLesson[][] => {
           break;
         }
       }
-
       // If no existing column works, create a new column
       if (!placed) {
         columns.push([lesson]);

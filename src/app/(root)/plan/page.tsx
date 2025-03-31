@@ -8,6 +8,7 @@ import React from "react";
 export default async function Home() {
   const mods = await schedule(["SC2008", "SC2005", "SC2104", "MH1812"]);
   // for testing we just use the first index
+
   const modIndexes = mods.map((mod: IMod) => {
     return {
       courseName: mod.course_name,
@@ -16,6 +17,7 @@ export default async function Home() {
       lessons: mod.indexes[0].lessons,
     };
   });
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <h1 className="text-4xl font-bold">Plan</h1>

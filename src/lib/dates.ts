@@ -34,6 +34,12 @@ function isTimeOverlap(range1: TimeRange, range2: TimeRange): boolean {
     range1.endMinutes > range2.startMinutes
   );
 }
+/**
+ * Check if two lessons overlap in time and day
+ * @param lesson1 
+ * @param lesson2 
+ * @returns 
+ */
 export function isOverlap(lesson1: ILesson, lesson2: ILesson): boolean {
   const { day: day1, timeRange: range1 } = parseLessonTiming(lesson1);
   const { day: day2, timeRange: range2 } = parseLessonTiming(lesson2);
