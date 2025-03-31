@@ -24,11 +24,9 @@ const LessonBlock = ({
         console.log(`Clicked on ${lesson.courseCode} at ${lesson.time}`)
       }
     >
-      <div className="font-semibold text-sm">
+      <div className="font-semibold text-xs">
         {lesson.courseCode}
-        <small>
-          {lesson.index && lesson.index !== "0" && `(${lesson.index})`}
-        </small>
+        {lesson.index && lesson.index !== "0" && `(${lesson.index})`}
       </div>
 
       <div className="text-xs">
