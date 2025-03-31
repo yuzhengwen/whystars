@@ -55,7 +55,7 @@ export default async function TimetableDiv({
   const columns = mapLessonColumns(grid);
 
   return (
-    <div className="flex w-full ">
+    <div className="flex w-full overflow-x-auto">
       {/* Time slots on the left */}
       <div className="flex flex-col w-20 text-right text-sm mt-18">
         {times.map((time) => (
