@@ -1,5 +1,6 @@
 "use server";
 
+import { isOverlap } from "@/lib/dates";
 import Mod from "@/lib/models/modModel";
 import connectDB from "@/lib/mongodb";
 
@@ -11,19 +12,18 @@ export async function schedule(courseCodes: string[] | undefined) {
   }
   mods.forEach((mod) => {
     console.log("\nMod found:", mod.course_code, mod.course_name);
+    const indexesFound: string[] = [];
     mod.indexes.forEach((index) => {
-      console.log("Index found:", index.index);
-      index.lessons.forEach((lesson) => {
-        console.log(
-          "Lesson found:",
-          lesson.lesson_type,
-          lesson.group,
-          lesson.day,
-          lesson.time,
-          lesson.venue,
-          lesson.remark
-        );
-      });
+      indexesFound.push(index.index);
     });
+    console.log("Indexes found:", indexesFound.join(", "));
   });
+
+  const overlap = isOverlap(
+    mods[0].indexes[0].lessons[0],
+    mods[1].indexes[0].lessons[0]
+  );
+  console.log("Overlap:", overlap);
+
+  return mods;
 }

@@ -1,6 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-interface ILesson {
+export interface ILesson {
   lesson_type: string;
   group: string;
   day: string;
@@ -9,7 +9,7 @@ interface ILesson {
   remark: string;
 }
 
-interface IIndex {
+export interface IIndex {
   index: string;
   lessons: ILesson[];
 }

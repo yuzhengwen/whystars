@@ -18,20 +18,25 @@ const AddTimetable = () => {
     await addTimetable(formData);
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <SelectMods onChange={handleModsChange} />
-      <input
-        type="text"
-        name="timetableName"
-        placeholder="Enter Name"
-        required
-        className="p-2 mt-2 border rounded"
-      />
+    <>
+      <form onSubmit={handleSubmit}>
+        <SelectMods onChange={handleModsChange} />
+        <input
+          type="text"
+          name="timetableName"
+          placeholder="Enter Name"
+          required
+          className="p-2 mt-2 border rounded"
+        />
 
-      <button type="submit" className="mt-4 p-2 bg-blue-500 text-white rounded">
-        Add Timetable
-      </button>
-    </form>
+        <button
+          type="submit"
+          className="mt-4 p-2 bg-blue-500 text-white rounded"
+        >
+          Add Timetable
+        </button>
+      </form>
+    </>
   );
 };
 
