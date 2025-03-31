@@ -19,6 +19,7 @@ export type ModLesson = ILesson & {
   rowSpan: number;
 };
 const timeSlotHeight = 3; // 3rem
+const headerHeight = 18; // spacing * 24
 
 export default async function TimetableDiv({
   modIndexes,
@@ -57,7 +58,9 @@ export default async function TimetableDiv({
   return (
     <div className="flex w-full overflow-x-auto">
       {/* Time slots on the left */}
-      <div className="flex flex-col w-20 text-right text-sm mt-18">
+      <div
+        className={`flex flex-col w-20 text-right text-sm mt-${headerHeight} pr-1`}
+      >
         {times.map((time) => (
           <div key={time} className="h-[3rem] border-b border-gray-300">
             {time}
@@ -65,7 +68,20 @@ export default async function TimetableDiv({
         ))}
       </div>
       {/* Right side: Days and columns */}
-      <div className="flex flex-col w-full">
+      <div className="relative flex flex-col w-full">
+        {/* Background stripes for each time slot */}
+        <div
+          className={`absolute flex flex-col justify-start items-start h-full w-full top-${headerHeight} left-0 z-0`}
+        >
+          {times.slice(0, times.length / 2).map((_, i) => (
+            <div
+              key={"bg" + i}
+              className={`h-24 w-full ${
+                i % 2 === 0 ? "bg-secondary" : "bg-background"
+              }`}
+            />
+          ))}
+        </div>
         {/* Timetable Main Grid */}
         <div className="flex w-full h-full ">
           {days.map((day) => (
@@ -75,20 +91,9 @@ export default async function TimetableDiv({
             >
               <div
                 key={"header" + day}
-                className="flex-1 p-6 border-r border-gray-300 text-center font-bold"
+                className="flex-1 p-6 border-b border-gray-300 text-center font-bold"
               >
                 {day}
-              </div>
-              {/* Background stripes for each time slot */}
-              <div className="absolute flex flex-col justify-start items-start h-full w-full top-18 left-0 z-0">
-                {times.slice(0, times.length / 2).map((_, i) => (
-                  <div
-                    key={"bg" + i}
-                    className={`h-[calc(6rem)] w-full ${
-                      i % 2 === 0 ? "bg-secondary" : "bg-background"
-                    }`}
-                  />
-                ))}
               </div>
               {/*Column Container*/}
               <div className="relative top-0 left-0 w-full h-full gap-1">
