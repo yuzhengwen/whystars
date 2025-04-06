@@ -1,3 +1,4 @@
+'use client';
 import { parseLessonTiming } from "@/lib/dates";
 import { ILesson } from "@/lib/models/modModel";
 import React from "react";
@@ -19,9 +20,8 @@ export type ModLesson = ILesson & {
   rowSpan: number;
 };
 const timeSlotHeight = 3; // 3rem
-const headerHeight = 18; // spacing * 24
 
-export default async function TimetableDiv({
+export default function TimetableDiv({
   modIndexes,
 }: {
   modIndexes: ModIndex[];
@@ -59,7 +59,7 @@ export default async function TimetableDiv({
     <div className="flex w-full overflow-x-auto">
       {/* Time slots on the left */}
       <div
-        className={`flex flex-col w-20 text-right text-sm mt-${headerHeight} pr-1`}
+        className={`relative flex flex-col w-20 text-right text-sm mt-18 pr-1`}
       >
         {times.map((time) => (
           <div key={time} className="h-[3rem] border-b border-gray-300">
@@ -71,7 +71,7 @@ export default async function TimetableDiv({
       <div className="relative flex flex-col w-full">
         {/* Background stripes for each time slot */}
         <div
-          className={`absolute flex flex-col justify-start items-start h-full w-full top-${headerHeight} left-0 z-0`}
+          className={`absolute flex flex-col justify-start items-start h-full w-full top-18 left-0 z-0`}
         >
           {times.slice(0, times.length / 2).map((_, i) => (
             <div

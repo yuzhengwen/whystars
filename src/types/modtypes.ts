@@ -1,0 +1,1 @@
+export type MinimalMod = { course_code: string; course_name: string; aus: number };

@@ -1,48 +1,77 @@
-import { schedule } from "@/actions/scheduler";
-import AddTimetable from "@/components/AddTimetable";
+"use client";
+import SaveTimetable from "@/components/SaveTimetable";
 import AiButton from "@/components/AiButton";
+import ModListItem from "@/components/ModListItem";
+import SelectMods from "@/components/SelectMods";
 import TimetableDiv from "@/components/TimetableDiv";
 import { IMod } from "@/lib/models/modModel";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-export default async function Home() {
-  const mods = await schedule([
-    "SC2008",
-    "SC2005",
-    "SC2104",
-    "MH1812",
-    "SC2006",
-    "SC1005",
-    "SC1003",
-    "MH1810",
-    "MH1812",
-    "SC2103",
-    "SC2107",
-    "HE3001",
-    "HE1001",
-    "HE3002",
-    "HE3020",
-    "HE3022ya",
-  ]);
-  // for testing we just use the first index
+export default function Home() {
+  const [selectedIndexes, setSelectedIndexes] = useState<
+    Record<string, string>
+  >({});
+  const [selectedMods, setSelectedMods] = useState<string[]>([]);
+  const [mods, setMods] = useState<IMod[]>([]);
+  const handleModsChange = (selectedValues: string[]) => {
+    setSelectedMods(selectedValues);
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await Promise.all(
+        selectedMods.map(async (code) => {
+          const res = await fetch(
+            `http://localhost:3000/data/mods/${code}.json`
+          );
+          const data = await res.json();
+          return data;
+        })
+      );
+      if (res) {
+        setMods(res);
+      }
+    };
+    fetchData();
+  }, [selectedMods]);
 
+  // for testing we just use the first index of each mod
   const modIndexes = mods.map((mod: IMod) => {
+    const selectedIndex =
+      selectedIndexes[mod.course_code] || mod.indexes[0].index;
+    const indexObj =
+      mod.indexes.find((i) => i.index === selectedIndex) || mod.indexes[0];
+
     return {
       courseName: mod.course_name,
       courseCode: mod.course_code,
-      index: mod.indexes[0].index,
-      lessons: mod.indexes[0].lessons,
+      index: indexObj.index,
+      lessons: indexObj.lessons,
     };
   });
 
+  const onIndexChange = (mod: IMod, newIndex: string) => {
+    console.log("Index changed to:", newIndex);
+    setSelectedIndexes((prev) => ({
+      ...prev,
+      [mod.course_code]: newIndex,
+    }));
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <h1 className="text-4xl font-bold">Plan</h1>
       <p className="mt-4 text-lg">This is the plan page.</p>
       <AiButton />
 
-      <AddTimetable />
+      <SelectMods onChange={handleModsChange} />
+      {mods.map((mod: IMod) => (
+        <ModListItem
+          key={mod.course_code}
+          mod={mod}
+          onIndexChange={onIndexChange}
+        />
+      ))}
 
+      <SaveTimetable />
       <TimetableDiv modIndexes={modIndexes} />
     </div>
   );
