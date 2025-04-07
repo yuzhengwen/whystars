@@ -8,6 +8,7 @@ import ModSearchBar from "@/components/ModSearchBar";
 import { ModIndex, ModLesson } from "@/types/modtypes";
 import { Button } from "@/components/ui/button";
 import { generateSchedules } from "@/actions/scheduler";
+import { baseUrl } from "@/lib/baseUrl";
 
 export default function Home() {
   // record<course_code, index>
@@ -24,7 +25,7 @@ export default function Home() {
     const fetchData = async () => {
       const res = await Promise.all(
         selectedStrings.map(async (code) => {
-          const res = await fetch(`data/mods/${code}.json`);
+          const res = await fetch(`${baseUrl}/data/mods/${code}.json`);
           const data = await res.json();
           return data;
         })

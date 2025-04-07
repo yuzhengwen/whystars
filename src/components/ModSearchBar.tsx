@@ -10,6 +10,7 @@ import {
   CommandEmpty,
 } from "cmdk";
 import { MinimalMod } from "@/types/modtypes";
+import { baseUrl } from "@/lib/baseUrl";
 
 const ModSearchBar = ({
   onSelect,
@@ -55,7 +56,7 @@ const ModSearchBar = ({
   }, [searchValue]);
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("data/module_list.json");
+      const res = await fetch(`${baseUrl}/data/module_list.json`);
       const data: MinimalMod[] = await res.json();
       setMods(data);
     };

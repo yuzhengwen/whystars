@@ -1,4 +1,5 @@
 "use server";
+import { baseUrl } from "@/lib/baseUrl";
 import { cache } from "react";
 
 export async function getMods(courseCodes: string[] | undefined) {
@@ -17,8 +18,7 @@ export async function getMods(courseCodes: string[] | undefined) {
   return mods;
 }
 export const getMod = cache(async (courseCode: string) => {
-  console.log("Fetching at ", `data/mods/${courseCode}.json`);
-  const res = await fetch(`data/mods/${courseCode}.json`);
+  const res = await fetch(`${baseUrl}/data/mods/${courseCode}.json`);
   const data = await res.json();
   if (!data) {
     throw new Error("No mod found");
