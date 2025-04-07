@@ -2,17 +2,29 @@ import SearchForm from "@/components/SearchForm";
 import React from "react";
 import Link from "next/link";
 import { MinimalMod } from "@/types/modtypes";
-import { baseUrl } from "@/lib/baseUrl";
+import fs from "fs";
+import path from "path";
 
 const page = async ({
   searchParams,
 }: {
   searchParams: Promise<{ query?: string }>;
 }) => {
-  // get list of mods from api
-  const res = await fetch(`${baseUrl}/data/module_list.json`);
-  const data: MinimalMod[] = await res.json();
-  console.log(data[0]);
+  let data: MinimalMod[] = [];
+  try {
+    //const res = await fetch(`${baseUrl}/data/module_list.json`);
+    //data = await res.json();
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      "data",
+      "module_list.json"
+    );
+    const fileContents = fs.readFileSync(filePath, "utf-8");
+    data = JSON.parse(fileContents);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
   const query = (await searchParams).query || "";
   return (
     <>
