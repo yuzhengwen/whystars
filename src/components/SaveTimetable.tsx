@@ -1,13 +1,25 @@
 "use client";
 import { addTimetable } from "@/actions/timetable";
+import { ModIndex } from "@/types/modtypes";
+import { useState } from "react";
 
-const SaveTimetable = () => {
-  const handleSubmit = async (formData: FormData) => {
-    await addTimetable(formData);
+const SaveTimetable = ({ modIndexes }: { modIndexes: ModIndex[] }) => {
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(e.currentTarget);
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await addTimetable(formData, modIndexes);
+    } finally {
+      setSaving(false);
+    }
   };
   return (
     <>
-      <form action={handleSubmit}>
+      <h1 className="text-2xl font-bold">Save Timetable</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col mt-4">
         <input
           type="text"
           name="timetableName"
@@ -15,13 +27,16 @@ const SaveTimetable = () => {
           required
           className="p-2 mt-2 border rounded"
         />
-
         <button
           type="submit"
           className="mt-4 p-2 bg-blue-500 text-white rounded"
         >
-          Save Timetable
+          Save
         </button>
+        {saving && <span>Saving...</span>}
+        <p className="mt-2 text-sm text-gray-500">
+          This will save the current timetable to your account.
+        </p>
       </form>
     </>
   );

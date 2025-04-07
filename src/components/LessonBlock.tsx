@@ -1,28 +1,30 @@
 "use client";
 import React from "react";
-import { ModLesson } from "./TimetableDiv";
+import { ModLesson } from "@/types/modtypes";
 
 const minLessonBlockWidth = 6; // Minimum width for LessonBlock
 const LessonBlock = ({
   lesson,
   top,
   height,
+  onClick,
 }: {
   lesson: ModLesson;
   top: number;
   height: number;
+  onClick: (lesson: ModLesson) => void;
 }) => {
   return (
     <div
-      className=" bg-blue-800 text-white rounded-md text-center p-1 hover:bg-blue-700 hover:cursor-pointer transition-all duration-200 z-50"
+      className={`${
+        lesson.selected ? "" : "opacity-50"
+      } bg-blue-800 text-white rounded-md text-center p-1 hover:bg-blue-700 hover:cursor-pointer transition-all duration-200 z-50`}
       style={{
         marginTop: `${top}rem`,
         height: `${height}rem`,
         minWidth: `${minLessonBlockWidth}rem`,
       }}
-      onClick={() =>
-        console.log(`Clicked on ${lesson.courseCode} at ${lesson.time}`)
-      }
+      onClick={() => onClick(lesson)}
     >
       <div className="font-semibold text-xs">
         {lesson.courseCode}

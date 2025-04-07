@@ -1,38 +1,28 @@
-'use client';
+"use client";
 import { parseLessonTiming } from "@/lib/dates";
-import { ILesson } from "@/lib/models/modModel";
+import { ModIndex, ModLesson } from "@/types/modtypes";
 import React from "react";
 import LessonBlock from "./LessonBlock";
 import { createTimeGrid, mapLessonColumns } from "@/lib/timetableUtils";
 
-// Represents the CHOSEN mod + index
-type ModIndex = {
-  courseName: string;
-  courseCode: string;
-  index: string;
-  lessons: ILesson[];
-};
-// Represents the specific lesson of each mod + index
-export type ModLesson = ILesson & {
-  courseName: string;
-  courseCode: string;
-  index: string;
-  rowSpan: number;
-};
 const timeSlotHeight = 3; // 3rem
 
 export default function TimetableDiv({
   modIndexes,
+  handleClick,
 }: {
   modIndexes: ModIndex[];
+  handleClick: (lesson: ModLesson) => void;
 }) {
   console.log(`Rendering timetable with ${modIndexes.length} modules`);
   const { days, times, grid } = createTimeGrid();
-
   // populate the grid with lessons
   modIndexes.forEach((mod) => {
     if (mod.lessons && mod.lessons.length > 0) {
       mod.lessons.forEach((lesson) => {
+        // skip lectures for unselected indexes (since lectures are all same time)
+        if (lesson.lesson_type.toLowerCase().includes("lec") && !mod.selected) 
+          return;
         const {
           day,
           timeRange: { startTime, startMinutes, endMinutes },
@@ -49,6 +39,7 @@ export default function TimetableDiv({
           venue: lesson.venue,
           remark: lesson.remark,
           rowSpan,
+          selected: mod.selected,
         });
       });
     }
@@ -124,6 +115,7 @@ export default function TimetableDiv({
                         }
                         return (
                           <LessonBlock
+                            onClick={handleClick}
                             key={lesson.courseName + lesson.index + lessonIndex}
                             lesson={lesson}
                             top={yOffset * timeSlotHeight}
