@@ -1,6 +1,5 @@
 "use client";
 import SaveTimetable from "@/components/SaveTimetable";
-import AiButton from "@/components/AiButton";
 import ModListItem from "@/components/ModListItem";
 import TimetableDiv from "@/components/TimetableDiv";
 import { IMod } from "@/lib/models/modModel";
