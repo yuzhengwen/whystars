@@ -1,4 +1,4 @@
-import { ILesson } from "@/lib/models/modModel";
+import { IIndex, ILesson, IMod } from "@/lib/models/modModel";
 
 export type MinimalMod = {
   course_code: string;
@@ -33,3 +33,21 @@ export type ModLesson = ILesson & {
   rowSpan: number;
   selected?: boolean;
 };
+export function createModLesson(index: ModIndex, lesson: ILesson) {
+  return {
+    ...lesson,
+    courseName: index.courseName,
+    courseCode: index.courseCode,
+    index: index.index,
+    rowSpan: 1,
+  };
+}
+export function createModIndex(mod: IMod, index: IIndex) {
+  return {
+    courseName: mod.course_name,
+    courseCode: mod.course_code,
+    index: index.index,
+    lessons: index.lessons,
+  };
+}
+

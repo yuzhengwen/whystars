@@ -16,10 +16,13 @@ const ModListItem: React.FC<ModListItemProps> = ({
   defaultIndex,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center w-full p-4 border-b-2 border-gray-200">
-      <div className="flex mb-2">
+    <div className="flex flex-col items-start w-full p-4 border-b-2">
+      <div className="flex w-full">
         <span>{mod.course_name}</span>
-        <X onClick={() => onRemove(mod)} />
+        <X className="ml-auto cursor-pointer" onClick={() => onRemove(mod)} />
+      </div>
+      <div className="mb-2">
+        <span>{mod.course_code}</span>
       </div>
       <div>
         <span>Index: </span>

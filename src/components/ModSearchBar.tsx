@@ -13,8 +13,10 @@ import { MinimalMod } from "@/types/modtypes";
 
 const ModSearchBar = ({
   onSelect,
+  selectedStrings,
 }: {
   onSelect: (mod: MinimalMod) => void;
+  selectedStrings: string[];
 }) => {
   const [searchValue, setSearchValue] = React.useState("");
   const [mods, setMods] = React.useState<MinimalMod[]>([]);
@@ -53,7 +55,7 @@ const ModSearchBar = ({
   }, [searchValue]);
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("http://localhost:3000/data/module_list.json");
+      const res = await fetch("data/module_list.json");
       const data: MinimalMod[] = await res.json();
       setMods(data);
     };
@@ -114,8 +116,13 @@ const ModSearchBar = ({
                     <CommandItem
                       key={mod.course_code}
                       onSelect={() => handleSelect(mod)}
-                      className="cursor-pointer px-2 py-1.5 rounded-md hover:bg-muted transition-all truncate"
+                      className={`cursor-pointer px-2 py-1.5 rounded-md hover:bg-muted transition-all truncate ${
+                        selectedStrings.includes(mod.course_code)
+                          ? "opacity-50 pointer-events-none"
+                          : ""
+                      }`}
                       value={mod.course_code + " " + mod.course_name}
+                      disabled={selectedStrings.includes(mod.course_code)}
                     >
                       <div>
                         <span className="font-semibold">{mod.course_code}</span>{" "}

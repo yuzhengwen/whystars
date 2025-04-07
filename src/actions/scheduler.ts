@@ -1,47 +1,86 @@
 "use server";
 
-import { cache } from "react";
+import { ILesson, IMod } from "@/lib/models/modModel";
+import { checkLessonsOverlap } from "@/lib/timetableUtils";
+import {
+  createModIndex,
+  ModIndexSimple,
+  modIndexToSimple,
+} from "@/types/modtypes";
+import { TimetableGrid } from "@/types/TimetableGrid";
 
-export async function getMods(courseCodes: string[] | undefined) {
-  /*await connectDB();
-  const mods = await Mod.find({ course_code: { $in: courseCodes } }).exec();*/
-  const mods = courseCodes
-    ? await Promise.all(
-        courseCodes.map(async (courseCode) => {
-          return await getMod(courseCode);
-        })
-      )
-    : undefined;
-  if (!mods) {
-    throw new Error("No mods found");
+export const generateSchedules = async (selectedMods: IMod[]) => {
+  // pre checks
+  if (selectedMods.length === 0) {
+    console.log("No mods selected");
+    return [];
   }
-  // printing for debugging
-  mods.forEach((mod) => {
-    console.log("Mod found:", mod.course_code, mod.course_name);
-    const indexesFound: string[] = [];
-    mod.indexes.forEach((index) => {
-      indexesFound.push(index.index);
+  if (checkLecturesClash(selectedMods)) {
+    console.log("Selected mods have clashing lectures");
+    return [];
+  }
+
+  const allSchedules: ModIndexSimple[][] = [];
+
+  // find all possible combinations of mods by backtracking
+  const recursiveGenerate = async (
+    i: number,
+    currentTimetable: TimetableGrid
+  ) => {
+    // base cases
+    if (allSchedules.length > 3) {
+      return;
+    }
+    if (i === selectedMods.length) {
+      // all mods have been added to the schedule
+      console.log("All mods added to schedule");
+      console.log("------------------------------");
+      allSchedules.push(
+        currentTimetable.modIndexes.map((m) => modIndexToSimple(m))
+      );
+      return;
+    }
+
+    const currentMod = selectedMods[i];
+    console.log(`Trying to add ${currentMod.course_code}`);
+    currentMod.indexes.forEach((index) => {
+      // check if this index can be added to the current schedule
+      if (currentTimetable.canAddToSchedule(index)) {
+        const modIndex = createModIndex(currentMod, index);
+        currentTimetable.addIndex(modIndex);
+        recursiveGenerate(i + 1, currentTimetable);
+        // backtrack
+        currentTimetable.removeIndex(modIndex);
+        if (allSchedules.length > 3) {
+          return;
+        }
+      } else {
+        console.log(`Index ${index.index} cannot be added to schedule`);
+      }
     });
-    console.log("Indexes found:", indexesFound.join(", "));
-  });
-  /*
-  const overlap = isOverlap(
-    mods[0].indexes[0].lessons[0],
-    mods[1].indexes[0].lessons[0]
-  );
-  console.log("Overlap:", overlap);*/
+  };
 
-  return mods;
-}
-export const getMod = cache(async (courseCode: string) => {
-  console.log(
-    "Fetching at ",
-    `http://localhost:3000/data/mods/${courseCode}.json`
-  );
-  const res = await fetch(`http://localhost:3000/data/mods/${courseCode}.json`);
-  const data = await res.json();
-  if (!data) {
-    throw new Error("No mod found");
-  }
-  return data;
-});
+  await recursiveGenerate(0, new TimetableGrid());
+
+  console.log("\nTotal schedules found:", allSchedules.length);
+  allSchedules.forEach((schedule) => {
+    console.log("Schedule found:");
+    schedule.forEach((modIndex) => {
+      console.log(
+        `Mod ${modIndex.courseCode} ${modIndex.index} ${modIndex.courseName}`
+      );
+    });
+  });
+  return allSchedules;
+};
+
+const checkLecturesClash = (selectedMods: IMod[]) => {
+  const lectures: ILesson[] = selectedMods
+    .map((mod) => {
+      return mod.indexes[0].lessons.find((lesson) => {
+        return lesson.lesson_type.toLowerCase().includes("lec");
+      });
+    })
+    .filter((lesson): lesson is ILesson => lesson !== undefined);
+  return checkLessonsOverlap(lectures);
+};

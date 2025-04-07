@@ -9,7 +9,7 @@ const page = async ({
   searchParams: Promise<{ query?: string }>;
 }) => {
   // get list of mods from api
-  const res = await fetch("http://localhost:3000/data/module_list.json");
+  const res = await fetch("data/module_list.json");
   const data: MinimalMod[] = await res.json();
   console.log(data[0]);
   const query = (await searchParams).query || "";

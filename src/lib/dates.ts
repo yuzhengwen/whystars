@@ -5,6 +5,7 @@ type TimeRange = {
   endTime: string;
   startMinutes: number;
   endMinutes: number;
+  duration: number;
 };
 // Function to convert time like "1130" to minutes since midnight
 function parseTimeToMinutes(timeString: string) {
@@ -24,7 +25,9 @@ export function parseLessonTiming(lesson: ILesson): {
     endTime: endTimeString.trim(),
     startMinutes: parseTimeToMinutes(startTimeString),
     endMinutes: parseTimeToMinutes(endTimeString),
+    duration: 0,
   };
+  timeRange.duration = timeRange.endMinutes - timeRange.startMinutes;
   return { day, timeRange };
 }
 // Function to check if two time ranges overlap (ignoring the day)
@@ -36,11 +39,12 @@ function isTimeOverlap(range1: TimeRange, range2: TimeRange): boolean {
 }
 /**
  * Check if two lessons overlap in time and day
- * @param lesson1 
- * @param lesson2 
- * @returns 
+ * @param lesson1
+ * @param lesson2
+ * @returns
  */
 export function isOverlap(lesson1: ILesson, lesson2: ILesson): boolean {
+  // extract day and time range from lessons
   const { day: day1, timeRange: range1 } = parseLessonTiming(lesson1);
   const { day: day2, timeRange: range2 } = parseLessonTiming(lesson2);
   // Check if the days are the same and the time ranges overlap

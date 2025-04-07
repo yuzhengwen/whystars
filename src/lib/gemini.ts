@@ -1,5 +1,5 @@
 "use server";
-import { getMods } from "@/actions/scheduler";
+import { getMods } from "@/actions/getMods";
 // This is a server action
 import { GoogleGenAI, Type } from "@google/genai";
 import { IIndex } from "./models/modModel";

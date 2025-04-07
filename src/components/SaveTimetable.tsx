@@ -12,12 +12,16 @@ const SaveTimetable = ({ modIndexes }: { modIndexes: ModIndex[] }) => {
     setSaving(true);
     try {
       await addTimetable(formData, modIndexes);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      }
     } finally {
       setSaving(false);
     }
   };
   return (
-    <>
+    <div className="flex flex-col items-center justify-center w-full p-4 border rounded shadow-md m-5">
       <h1 className="text-2xl font-bold">Save Timetable</h1>
       <form onSubmit={handleSubmit} className="flex flex-col mt-4">
         <input
@@ -38,7 +42,7 @@ const SaveTimetable = ({ modIndexes }: { modIndexes: ModIndex[] }) => {
           This will save the current timetable to your account.
         </p>
       </form>
-    </>
+    </div>
   );
 };
 

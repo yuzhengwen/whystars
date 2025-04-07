@@ -9,12 +9,12 @@ export async function getAllUsers() {
 }
 
 export async function addTimetable(formData: FormData, modIndexes: ModIndex[]) {
-  // Simulate a delay
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-
   const timetableName = formData.get("timetableName") as string;
 
   const session = await auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
   const userId = session?.user?.id as string;
   const modIndexesSimple = modIndexes.map((i) => modIndexToSimple(i)); // Convert mod indexes to a simpler format
   try {

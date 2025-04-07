@@ -21,13 +21,13 @@ export default function TimetableDiv({
     if (mod.lessons && mod.lessons.length > 0) {
       mod.lessons.forEach((lesson) => {
         // skip lectures for unselected indexes (since lectures are all same time)
-        if (lesson.lesson_type.toLowerCase().includes("lec") && !mod.selected) 
+        if (lesson.lesson_type.toLowerCase().includes("lec") && !mod.selected)
           return;
         const {
           day,
-          timeRange: { startTime, startMinutes, endMinutes },
+          timeRange: { startTime, duration },
         } = parseLessonTiming(lesson);
-        const rowSpan = Math.ceil((endMinutes - startMinutes) / 30);
+        const rowSpan = Math.ceil(duration / 30);
         grid[day][startTime].push({
           courseName: mod.courseName,
           courseCode: mod.courseCode,
