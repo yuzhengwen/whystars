@@ -87,7 +87,7 @@ const page = async ({
             <li key={mod.course_code}>
               <Link
                 href={`/mods/${mod.course_code}`}
-                className="flex flex-col items-center justify-center bg-muted shadow-md rounded-md p-3 hover:shadow-lg w-full h-full transition-all duration-300 hover:bg-muted/80"
+                className="flex flex-col items-center justify-center bg-card shadow-md rounded-md p-3 hover:shadow-lg w-full h-full transition-all duration-300 hover:bg-hover"
               >
                 <span className="text-xl font-bold overflow-ellipsis text-center">
                   {mod.course_name}
