@@ -7,7 +7,9 @@ export default function Layout({
   return (
     <main>
       <Providers>
-        <NavBar />
+        <header className="w-full border-b">
+          <NavBar />
+        </header>
         <div className="flex flex-col min-h-screen bg-background">
           <div className="w-full mx-auto mt-4 flex flex-col">{children}</div>
         </div>

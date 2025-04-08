@@ -44,10 +44,10 @@
 }
 @layer utilities {
   .nav-button {
-    @apply bg-transparent border-none text-primary;
+    @apply bg-transparent border-none text-primary text-lg transition-colors duration-200 ease-in-out;
   }
   .nav-button:hover {
-    @apply text-gray-400;
+    @apply text-gray-400 transition-colors duration-200 ease-in-out;
   }
 }
 

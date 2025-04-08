@@ -2,6 +2,8 @@
 import { addTimetable } from "@/actions/timetable";
 import { ModIndex } from "@/types/modtypes";
 import { useState } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const SaveTimetable = ({ modIndexes }: { modIndexes: ModIndex[] }) => {
   const [saving, setSaving] = useState(false);
@@ -24,19 +26,18 @@ const SaveTimetable = ({ modIndexes }: { modIndexes: ModIndex[] }) => {
     <div className="flex flex-col items-center justify-center w-full p-4 border rounded shadow-md m-5">
       <h1 className="text-2xl font-bold">Save Timetable</h1>
       <form onSubmit={handleSubmit} className="flex flex-col mt-4">
-        <input
-          type="text"
-          name="timetableName"
-          placeholder="Enter Name"
-          required
-          className="p-2 mt-2 border rounded"
-        />
-        <button
-          type="submit"
-          className="mt-4 p-2 bg-blue-500 text-white rounded"
-        >
-          Save
-        </button>
+        <div className="flex gap-3 items-center justify-center w-full">
+          <Input
+            type="text"
+            name="timetableName"
+            placeholder="Enter Name"
+            required
+            className="p-2 border rounded"
+          />
+          <Button type="submit" className="w-fit">
+            Save
+          </Button>
+        </div>
         {saving && <span>Saving...</span>}
         <p className="mt-2 text-sm text-gray-500">
           This will save the current timetable to your account.
