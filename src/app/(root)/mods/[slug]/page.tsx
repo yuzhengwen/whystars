@@ -32,8 +32,7 @@ export default async function Page({
     );
   } else {
     return (
-      <div className="flex flex-col items-center justify-center w-full ">
-        <div className="flex flex-col items-start justify-center w-2xl p-4 m-5">
+        <div className="flex flex-col items-start justify-center w-5/6 md:w-2xl p-4 m-5">
           <h1 className="text-3xl font-bold mb-4">{data.course_name}</h1>
           <p className="text-lg mb-2">{data.course_code}</p>
           <p className="text-lg mb-2">Credits: {data.academic_units}</p>
@@ -69,7 +68,6 @@ export default async function Page({
               </tr>
             </tfoot>
           </table>
-        </div>
       </div>
     );
   }
