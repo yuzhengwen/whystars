@@ -22,7 +22,7 @@ const LessonBlock = ({
     <div
       className={`${
         lesson.selected ? "" : "opacity-50"
-      } text-white rounded-md text-center p-1 hover:bg-blue-700 hover:cursor-pointer transition-all duration-200 z-50`}
+      } text-white rounded-md text-center p-1 hover:opacity-80 hover:cursor-pointer transition-all duration-200 z-50`}
       style={{
         marginTop: `${top}rem`,
         height: `${height}rem`,
