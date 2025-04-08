@@ -28,9 +28,7 @@ const NavBar = async () => {
           <ModeToggle />
           {session && session.user ? (
             <>
-              <Link href="/profile" className="nav-button">
-                <NavUserAccount user={session.user} />
-              </Link>
+              <NavUserAccount user={session.user} />
             </>
           ) : (
             <form
@@ -39,9 +37,7 @@ const NavBar = async () => {
                 await signIn(); // add "github" to directly use GitHub provider
               }}
             >
-              <Button type="submit">
-                Sign In
-              </Button>
+              <Button type="submit">Sign In</Button>
             </form>
           )}
         </div>
