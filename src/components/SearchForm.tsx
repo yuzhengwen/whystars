@@ -42,7 +42,7 @@ const SearchForm = () => {
       />
       {searchParams.get("query") && (
         <button onClick={reset} type="reset" className="absolute right-0 p-2">
-          <Link href="/mods" className="text-white">
+          <Link href="/mods" className="text-primary">
             <X className="w-5 h-5" />
           </Link>
         </button>

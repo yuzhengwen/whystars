@@ -89,7 +89,7 @@ const page = async ({
                 href={`/mods/${mod.course_code}`}
                 className="flex flex-col items-center justify-center bg-card shadow-md rounded-md p-3 hover:shadow-lg w-full h-full transition-all duration-300 hover:bg-hover"
               >
-                <span className="text-xl font-bold overflow-ellipsis text-center">
+                <span className="text-lg overflow-ellipsis text-center">
                   {mod.course_name}
                 </span>
                 <p className="text-gray-600">{mod.course_code}</p>
