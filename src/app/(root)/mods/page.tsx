@@ -50,51 +50,53 @@ const page = async ({
       <section className="flex flex-col items-center justify-start">
         <h1 className="text-3xl font-bold mb-4">Find Mods</h1>
         <SearchForm />
-      </section>
-      <section className="flex flex-col items-center justify-start mt-4">
         <p className="text-30-semibold mb-2">
-          {query ? `Searching for "${query}"` : "All mods"}
+          {query ? `Searching for "${query}"` : "Showing All mods"}
         </p>
-        <ul className="mt-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
+      </section>
+
+      {/* Pagination Controls */}
+      <div className="flex mt-6 gap-4">
+        {currentPage > 1 && (
+          <>
+            <Link href={`?query=${query}&page=1`}>
+              <Button>{"<<"}</Button>
+            </Link>
+            <Link href={`?query=${query}&page=${currentPage - 1}`}>
+              <Button>Previous</Button>
+            </Link>
+          </>
+        )}
+        {currentPage < totalPages && (
+          <>
+            <Link href={`?query=${query}&page=${currentPage + 1}`}>
+              <Button>Next</Button>
+            </Link>
+            <Link href={`?query=${query}&page=${totalPages}`}>
+              <Button>{">>"}</Button>
+            </Link>
+          </>
+        )}
+      </div>
+      <p className="text-sm text-gray-500 mt-2">
+        Page {currentPage} of {totalPages}
+      </p>
+      <section className="flex flex-col items-center justify-start mt-4">
+        <ul className="mt-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3 px-2 md:px-24 w-full">
           {paginated.map((mod: MinimalMod) => (
             <li key={mod.course_code}>
               <Link
                 href={`/mods/${mod.course_code}`}
-                className="flex flex-col items-center justify-center bg-accent shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow duration-300"
+                className="flex flex-col items-center justify-center bg-muted shadow-md rounded-md p-3 hover:shadow-lg w-full h-full transition-all duration-300 hover:bg-muted/80"
               >
-                <h2 className="text-xl font-bold">{mod.course_name}</h2>
+                <span className="text-xl font-bold overflow-ellipsis text-center">
+                  {mod.course_name}
+                </span>
                 <p className="text-gray-600">{mod.course_code}</p>
               </Link>
             </li>
           ))}
         </ul>
-
-        {/* Pagination Controls */}
-        <div className="flex mt-6 gap-4">
-          {currentPage > 1 && (
-            <>
-              <Link href={`?query=${query}&page=1`}>
-                <Button>{"<<"}</Button>
-              </Link>
-              <Link href={`?query=${query}&page=${currentPage - 1}`}>
-                <Button>Previous</Button>
-              </Link>
-            </>
-          )}
-          {currentPage < totalPages && (
-            <>
-              <Link href={`?query=${query}&page=${currentPage + 1}`}>
-                <Button>Next</Button>
-              </Link>
-              <Link href={`?query=${query}&page=${totalPages}`}>
-                <Button>{">>"}</Button>
-              </Link>
-            </>
-          )}
-        </div>
-        <p className="text-sm text-gray-500 mt-2">
-          Page {currentPage} of {totalPages}
-        </p>
       </section>
     </>
   );
