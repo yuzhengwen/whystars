@@ -42,11 +42,12 @@ export function ColorPicker({
     "#7dcfb6",
     "#09203f",
   ];
+  const [open, setOpen] = useState(false);
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-        variant={"secondary"}
+          variant={"secondary"}
           className={cn(
             "justify-start text-left font-normal",
             !background && "text-muted-foreground",
@@ -71,7 +72,10 @@ export function ColorPicker({
             key={s}
             style={{ background: s }}
             className="rounded-md h-6 w-6 cursor-pointer active:scale-105"
-            onClick={() => setBackground(s)}
+            onClick={() => {
+              setBackground(s);
+              setOpen(false);
+            }}
           />
         ))}
       </PopoverContent>
