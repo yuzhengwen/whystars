@@ -9,6 +9,7 @@ import { ModIndex, ModLesson } from "@/types/modtypes";
 import { Button } from "@/components/ui/button";
 import { generateSchedules } from "@/actions/scheduler";
 import { baseUrl } from "@/lib/baseUrl";
+import Link from "next/link";
 
 export default function Home() {
   // record<course_code, index>
@@ -120,6 +121,9 @@ export default function Home() {
   return (
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
+        <Button>
+          <Link href="/mytimetables">My Timetables</Link>
+        </Button>
         <SaveTimetable modIndexes={modIndexes} />
         <Button onClick={handleGenerateSchedule} className="mb-5">
           Generate Schedules

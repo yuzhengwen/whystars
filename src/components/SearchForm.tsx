@@ -28,7 +28,7 @@ const SearchForm = () => {
     setInputValue("");
   };
   return (
-    <div className="relative flex items-center justify-center mb-4 w-2xl">
+    <div className="relative flex items-center justify-center mb-4  w-5/6 md:w-2xl">
       <Input
         name="search"
         placeholder="Search..."

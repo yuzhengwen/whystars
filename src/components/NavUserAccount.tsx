@@ -33,7 +33,7 @@ const NavUserAccount = ({ user }: Props) => {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/">Hey</Link>
+          <Link href="/mytimetables">My Timetables</Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           asChild
