@@ -10,7 +10,7 @@ export default function MobileNav() {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <div className="md:hidden flex items-center justify-between bg-accent text-primary">
+      <div className="md:hidden flex items-center justify-between text-primary">
         {/* This button will trigger open the mobile sheet menu */}
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon">
@@ -24,7 +24,7 @@ export default function MobileNav() {
             <Link
               key={key}
               href={value}
-              className="nav-button p-4"
+              className="hover:text-accent p-4"
               onClick={() => setOpen(false)}
             >
               {key}

@@ -1,8 +1,10 @@
 "use client";
 import { IIndex, IMod } from "@/lib/models/modModel";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ComboboxDemo } from "./ui/combobox";
 import { X } from "lucide-react";
+import { ColorPicker } from "./ColorPicker";
+import { useModColorStore } from "@/stores/useModColorStore";
 interface ModListItemProps {
   mod: IMod;
   onIndexChange: (mod: IMod, newIndex: string) => void;
@@ -15,6 +17,12 @@ const ModListItem: React.FC<ModListItemProps> = ({
   onRemove,
   defaultIndex,
 }) => {
+  const [background, setBackground] = useState("#c82461");
+  const setModColor = useModColorStore((state) => state.setModColor);
+  useEffect(() => {
+    setModColor(mod.course_code, background);
+    console.log(`Setting color for ${mod.course_code} to ${background}`);
+  }, [mod.course_code, background, setModColor]);
   return (
     <div className="flex flex-col items-start w-full p-4 border-b-2">
       <div className="flex w-full">
@@ -24,7 +32,7 @@ const ModListItem: React.FC<ModListItemProps> = ({
       <div className="mb-2">
         <span>{mod.course_code}</span>
       </div>
-      <div>
+      <div className="flex items-center gap-2 w-full">
         <span>Index: </span>
         <ComboboxDemo
           options={mod.indexes.map((index: IIndex) => ({
@@ -36,6 +44,7 @@ const ModListItem: React.FC<ModListItemProps> = ({
             onIndexChange(mod, value);
           }}
         />
+        <ColorPicker background={background} setBackground={setBackground} />
       </div>
     </div>
   );

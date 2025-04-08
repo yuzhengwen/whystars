@@ -23,13 +23,14 @@ const SearchForm = () => {
       params.delete("page");
     }
     replace(`${pathname}?${params.toString()}`);
-  }, 500);
+  }, 350);
   const reset = () => {
     setInputValue("");
   };
   return (
     <div className="relative flex items-center justify-center mb-4  w-5/6 md:w-2xl">
       <Input
+        type="text"
         name="search"
         placeholder="Search..."
         value={inputValue}
@@ -38,11 +39,10 @@ const SearchForm = () => {
           setInputValue(e.target.value);
           handleSearch(e.target.value);
         }}
-        defaultValue={searchParams.get("query") || ""}
       />
       {searchParams.get("query") && (
         <button onClick={reset} type="reset" className="absolute right-0 p-2">
-          <Link href="/mods" className="text-white">
+          <Link href="/mods" className="text-primary">
             <X className="w-5 h-5" />
           </Link>
         </button>

@@ -5,6 +5,12 @@ import { MinimalMod } from "@/types/modtypes";
 import fs from "fs";
 import path from "path";
 import { Button } from "@/components/ui/button";
+import {
+  ArrowLeft,
+  ArrowLeftToLine,
+  ArrowRight,
+  ArrowRightToLine,
+} from "lucide-react";
 
 const PAGE_SIZE = 15; // You can tweak this
 
@@ -50,51 +56,66 @@ const page = async ({
       <section className="flex flex-col items-center justify-start">
         <h1 className="text-3xl font-bold mb-4">Find Mods</h1>
         <SearchForm />
-      </section>
-      <section className="flex flex-col items-center justify-start mt-4">
         <p className="text-30-semibold mb-2">
-          {query ? `Searching for "${query}"` : "All mods"}
+          {query ? `Searching for "${query}"` : "Showing All mods"}
         </p>
-        <ul className="mt-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
+      </section>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-center gap-2">
+        <div
+          className="flex gap-1"
+          style={{ visibility: currentPage > 1 ? "visible" : "hidden" }}
+        >
+          <Link href={`?query=${query}&page=1`}>
+            <Button variant={"ghost"}>
+              <ArrowLeftToLine color="gray" />
+            </Button>
+          </Link>
+          <Link href={`?query=${query}&page=${currentPage - 1}`}>
+            <Button variant={"ghost"}>
+              <ArrowLeft color="gray" />
+            </Button>
+          </Link>
+        </div>
+        <p className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
+        </p>
+        <div
+          className="flex gap-1"
+          style={{
+            visibility: currentPage < totalPages ? "visible" : "hidden",
+          }}
+        >
+          <Link href={`?query=${query}&page=${currentPage + 1}`}>
+            <Button variant={"ghost"}>
+              <ArrowRight color="gray" />
+            </Button>
+          </Link>
+          <Link href={`?query=${query}&page=${totalPages}`}>
+            <Button variant={"ghost"}>
+              <ArrowRightToLine color="gray" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <section className="flex flex-col items-center justify-start">
+        <ul className="mt-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3 px-2 md:px-24 w-full">
           {paginated.map((mod: MinimalMod) => (
             <li key={mod.course_code}>
               <Link
                 href={`/mods/${mod.course_code}`}
-                className="flex flex-col items-center justify-center bg-accent shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow duration-300"
+                className="flex flex-col items-center justify-center bg-card shadow-md rounded-md p-3 hover:shadow-lg w-full h-full transition-all duration-300 hover:bg-hover"
               >
-                <h2 className="text-xl font-bold">{mod.course_name}</h2>
+                <span className="text-lg overflow-ellipsis text-center">
+                  {mod.course_name}
+                </span>
                 <p className="text-gray-600">{mod.course_code}</p>
               </Link>
             </li>
           ))}
         </ul>
-
-        {/* Pagination Controls */}
-        <div className="flex mt-6 gap-4">
-          {currentPage > 1 && (
-            <>
-              <Link href={`?query=${query}&page=1`}>
-                <Button>{"<<"}</Button>
-              </Link>
-              <Link href={`?query=${query}&page=${currentPage - 1}`}>
-                <Button>Previous</Button>
-              </Link>
-            </>
-          )}
-          {currentPage < totalPages && (
-            <>
-              <Link href={`?query=${query}&page=${currentPage + 1}`}>
-                <Button>Next</Button>
-              </Link>
-              <Link href={`?query=${query}&page=${totalPages}`}>
-                <Button>{">>"}</Button>
-              </Link>
-            </>
-          )}
-        </div>
-        <p className="text-sm text-gray-500 mt-2">
-          Page {currentPage} of {totalPages}
-        </p>
       </section>
     </>
   );

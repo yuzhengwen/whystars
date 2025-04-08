@@ -12,7 +12,7 @@ const NavBar = async () => {
   const session = await auth();
   return (
     <>
-      <header className="justify-between items-center p-4 bg-accent text-primary flex">
+      <header className="justify-between items-center px-4 py-2 bg-secondary text-primary flex">
         <div className="flex items-center space-x-4">
           <MobileNav />
           <h1 className="text-xl font-bold">Why Stars</h1>
@@ -39,7 +39,7 @@ const NavBar = async () => {
                 await signIn(); // add "github" to directly use GitHub provider
               }}
             >
-              <Button type="submit" className="hover:text-gray-400">
+              <Button type="submit">
                 Sign In
               </Button>
             </form>

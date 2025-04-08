@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { ModLesson } from "@/types/modtypes";
+import { useModColorStore } from "@/stores/useModColorStore";
 
 const minLessonBlockWidth = 6; // Minimum width for LessonBlock
 const LessonBlock = ({
@@ -14,15 +15,19 @@ const LessonBlock = ({
   height: number;
   onClick: (lesson: ModLesson) => void;
 }) => {
+  const color = useModColorStore(
+    (state) => state.modColors[lesson.courseCode] || "blue"
+  );
   return (
     <div
       className={`${
         lesson.selected ? "" : "opacity-50"
-      } bg-blue-800 text-white rounded-md text-center p-1 hover:bg-blue-700 hover:cursor-pointer transition-all duration-200 z-50`}
+      } text-white rounded-md text-center p-1 hover:opacity-80 hover:cursor-pointer transition-all duration-200 z-50`}
       style={{
         marginTop: `${top}rem`,
         height: `${height}rem`,
         minWidth: `${minLessonBlockWidth}rem`,
+        backgroundColor: color,
       }}
       onClick={() => onClick(lesson)}
     >
