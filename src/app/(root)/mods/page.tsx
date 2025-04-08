@@ -5,6 +5,12 @@ import { MinimalMod } from "@/types/modtypes";
 import fs from "fs";
 import path from "path";
 import { Button } from "@/components/ui/button";
+import {
+  ArrowLeft,
+  ArrowLeftToLine,
+  ArrowRight,
+  ArrowRightToLine,
+} from "lucide-react";
 
 const PAGE_SIZE = 15; // You can tweak this
 
@@ -56,32 +62,45 @@ const page = async ({
       </section>
 
       {/* Pagination Controls */}
-      <div className="flex mt-6 gap-4">
-        {currentPage > 1 && (
-          <>
-            <Link href={`?query=${query}&page=1`}>
-              <Button>{"<<"}</Button>
-            </Link>
-            <Link href={`?query=${query}&page=${currentPage - 1}`}>
-              <Button>Previous</Button>
-            </Link>
-          </>
-        )}
-        {currentPage < totalPages && (
-          <>
-            <Link href={`?query=${query}&page=${currentPage + 1}`}>
-              <Button>Next</Button>
-            </Link>
-            <Link href={`?query=${query}&page=${totalPages}`}>
-              <Button>{">>"}</Button>
-            </Link>
-          </>
-        )}
+      <div className="flex items-center justify-center gap-2">
+        <div
+          className="flex gap-1"
+          style={{ visibility: currentPage > 1 ? "visible" : "hidden" }}
+        >
+          <Link href={`?query=${query}&page=1`}>
+            <Button variant={"ghost"}>
+              <ArrowLeftToLine color="gray" />
+            </Button>
+          </Link>
+          <Link href={`?query=${query}&page=${currentPage - 1}`}>
+            <Button variant={"ghost"}>
+              <ArrowLeft color="gray" />
+            </Button>
+          </Link>
+        </div>
+        <p className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
+        </p>
+        <div
+          className="flex gap-1"
+          style={{
+            visibility: currentPage < totalPages ? "visible" : "hidden",
+          }}
+        >
+          <Link href={`?query=${query}&page=${currentPage + 1}`}>
+            <Button variant={"ghost"}>
+              <ArrowRight color="gray" />
+            </Button>
+          </Link>
+          <Link href={`?query=${query}&page=${totalPages}`}>
+            <Button variant={"ghost"}>
+              <ArrowRightToLine color="gray" />
+            </Button>
+          </Link>
+        </div>
       </div>
-      <p className="text-sm text-gray-500 mt-2">
-        Page {currentPage} of {totalPages}
-      </p>
-      <section className="flex flex-col items-center justify-start mt-4">
+
+      <section className="flex flex-col items-center justify-start">
         <ul className="mt-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3 px-2 md:px-24 w-full">
           {paginated.map((mod: MinimalMod) => (
             <li key={mod.course_code}>
