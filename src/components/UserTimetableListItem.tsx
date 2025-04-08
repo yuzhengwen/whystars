@@ -13,7 +13,7 @@ interface Timetable {
 const UserTimetableListItem = ({ timetable }: { timetable: Timetable }) => {
   const router = useRouter();
   return (
-    <div className="p-4 rounded-lg shadow-md mb-4 w-full max-w-md bg-accent ustify-between flex items-center">
+    <div className="p-4 rounded-lg shadow-md mb-4 w-full max-w-md bg-card flex items-center">
       <span className="text-lg">{timetable.name}</span>
       <div className="flex gap-2 ml-auto">
         <Button
