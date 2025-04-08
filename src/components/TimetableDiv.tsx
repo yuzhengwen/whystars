@@ -46,8 +46,9 @@ export default function TimetableDiv({
   });
   const columns = mapLessonColumns(grid);
 
+  // not sure why overflow-y-hidden works without cutting off anything but ok
   return (
-    <div className="flex w-full overflow-x-auto">
+    <div className="flex w-full overflow-x-auto overflow-y-hidden">
       {/* Time slots on the left */}
       <div
         className={`relative flex flex-col w-20 text-right text-sm mt-18 pr-1`}

@@ -118,8 +118,12 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-row w-full justify-center items-center px-10 gap-20">
-      <div className="flex flex-col w-1/3 h-screen overflow-y-auto justify-start items-center">
+    <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
+      <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
+        <SaveTimetable modIndexes={modIndexes} />
+        <Button onClick={handleGenerateSchedule} className="mb-5">
+          Generate Schedules
+        </Button>
         {/* <AiButton /> */}
         <ModSearchBar
           selectedStrings={selectedStrings}
@@ -147,8 +151,6 @@ export default function Home() {
             }
           />
         ))}
-        <SaveTimetable modIndexes={modIndexes} />
-        <Button onClick={handleGenerateSchedule}>Generate Schedules</Button>
       </div>
       <TimetableDiv modIndexes={modIndexes} handleClick={handleClickOnLesson} />
     </div>
