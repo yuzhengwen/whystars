@@ -31,3 +31,42 @@ export async function addTimetable(formData: FormData, modIndexes: ModIndex[]) {
     throw new Error("Error adding timetable");
   }
 }
+export async function deleteTimetable(timetableId: number) {
+  const session = await auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
+  const userId = session?.user?.id as string;
+  try {
+    // Delete the timetable entry from the database
+    await prisma.timetable.delete({
+      where: {
+        id: timetableId,
+        userId: userId,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting timetable:", error);
+    throw new Error("Error deleting timetable");
+  }
+}
+export async function getTimetable(timetableId: number) {
+  const session = await auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
+  const userId = session?.user?.id as string;
+  try {
+    // Get the timetable entry from the database
+    const timetable = await prisma.timetable.findFirst({
+      where: {
+        id: timetableId,
+        userId: userId,
+      },
+    });
+    return timetable;
+  } catch (error) {
+    console.error("Error getting timetable:", error);
+    throw new Error("Error getting timetable");
+  }
+}
