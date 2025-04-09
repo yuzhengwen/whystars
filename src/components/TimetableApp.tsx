@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod } from "@/actions/getMods";
 import SaveExistingTimetable from "@/components/SaveExistingTimetable";
+import { getSession } from "next-auth/react";
 
 export default function TimetableApp() {
   const router = useRouter();
@@ -53,6 +54,12 @@ export default function TimetableApp() {
   const timetableName = searchParams.get("name") || "";
   useEffect(() => {
     const fetchAndSetDefaults = async () => {
+      // if not signed in, redirect to /plan
+      const session = await getSession();
+      if (!session) {
+        router.push("/plan");
+        return;
+      }
       if (timetableId && timetableName) {
         try {
           const res = await fetch(`${baseUrl}/api/timetables/${timetableId}`);
@@ -62,7 +69,6 @@ export default function TimetableApp() {
             setModIndexesBasic(selectedIndexes);
           }
         } catch {
-          // error if signed out
           router.push("/plan");
         }
       }
