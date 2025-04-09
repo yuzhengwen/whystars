@@ -10,7 +10,7 @@ import {
   CommandEmpty,
 } from "cmdk";
 import { ModInfoBasic } from "@/types/modtypes";
-import { baseUrl } from "@/lib/baseUrl";
+import { fetchModList } from "@/actions/fetchDataClient";
 
 const ModSearchBar = ({
   onSelect,
@@ -37,6 +37,14 @@ const ModSearchBar = ({
       inputRef.current.blur();
     }
   };
+  // initial data fetch
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchModList();
+      setMods(data);
+    };
+    fetchData();
+  }, []);
   useEffect(() => {
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -54,14 +62,7 @@ const ModSearchBar = ({
   useEffect(() => {
     setOpen(searchValue.length > 0);
   }, [searchValue]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch(`${baseUrl}/data/module_list.json`);
-      const data: ModInfoBasic[] = await res.json();
-      setMods(data);
-    };
-    fetchData();
-  }, []);
+
   const handleSelect = (mod: ModInfoBasic) => {
     setSearchValue("");
     onSelect(mod);

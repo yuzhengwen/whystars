@@ -26,17 +26,16 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
   // if there is an actual change in mods/indexes selected, must also update the global state (TimetableStore)
   const [modIndexes, setModIndexes] = useState<ModIndex[]>([]);
   useEffect(() => {
-    const newModIndexes = mods.map((mod) =>
-      createModIndexWithString(
-        mod,
-        modIndexesBasic.find((m) => m.courseCode === mod.course_code)?.index ||
-          ""
+    setModIndexes(
+      mods.map((mod) =>
+        createModIndexWithString(
+          mod,
+          modIndexesBasic.find((m) => m.courseCode === mod.course_code)
+            ?.index || ""
+        )
       )
     );
-    setModIndexes(newModIndexes);
   }, [mods, modIndexesBasic]);
-
-  console.log(`Rendering timetable with ${modIndexes.length} modules`);
 
   const { days, times, grid } = createTimeGrid();
   // populate the grid with lessons
@@ -101,17 +100,8 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
       removeAllButClicked(clicked);
       setSelected(null);
     } else if (!clicked.selected) {
-      removeAllButClicked(clicked);
-      setModIndexes((prev) =>
-        prev
-          // set the clicked one to selected
-          .map((m) =>
-            m.courseCode === clicked.courseCode && m.index === clicked.index
-              ? { ...m, selected: true }
-              : m
-          )
-      );
       // since there is an actual change in selected indexes, update the global state
+      // the changes will be reflected in modIndexes, which will update the timetable
       setCourseIndex(clicked.courseCode, clicked.courseName, clicked.index);
       setSelected(null);
     }
