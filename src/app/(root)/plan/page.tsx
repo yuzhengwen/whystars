@@ -1,5 +1,3 @@
-"use client";
-
 import TimetableApp from "@/components/TimetableApp";
 import React, { Suspense } from "react";
 

@@ -1,9 +1,9 @@
-"use server";
+//"use server";
 import { baseUrl } from "@/lib/baseUrl";
 import { IMod } from "@/lib/models/modModel";
 import { ModInfoBasic } from "@/types/modtypes";
+/* server side fetching with cache
 import { cache } from "react";
-
 export const fetchMod = cache(async (courseCode: string): Promise<IMod> => {
   const res = await fetch(`${baseUrl}/data/mods/${courseCode}.json`);
   const data = await res.json();
@@ -11,7 +11,23 @@ export const fetchMod = cache(async (courseCode: string): Promise<IMod> => {
     throw new Error("No mod found");
   }
   return data;
-});
+});*/
+
+// client side function with caching
+const modCache = new Map<string, IMod>();
+export const fetchMod = async (courseCode: string): Promise<IMod> => {
+  if (modCache.has(courseCode)) {
+    return modCache.get(courseCode) as IMod;
+  }
+  const res = await fetch(`${baseUrl}/data/mods/${courseCode}.json`);
+  const data = await res.json();
+  if (!data) {
+    throw new Error("No mod found");
+  }
+  modCache.set(courseCode, data);
+  return data;
+};
+
 export async function fetchAllMods(courseCodes: string[] | undefined) {
   const mods = courseCodes
     ? await Promise.all(
