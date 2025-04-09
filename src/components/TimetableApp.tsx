@@ -69,7 +69,7 @@ export default function TimetableApp() {
       }
     };
     fetchAndSetDefaults();
-  }, [timetableId, timetableName, setModIndexesBasic, router]);
+  }, [timetableId, timetableName, setModIndexesBasic, router, session.status]);
 
   const handleGenerateSchedule = async () => {
     const schedules = await generateSchedules(mods);
