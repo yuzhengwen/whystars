@@ -1,8 +1,8 @@
 "use server";
-import { getMods } from "@/actions/getMods";
 // This is a server action
 import { GoogleGenAI, Type } from "@google/genai";
 import { IIndex } from "./models/modModel";
+import { fetchAllMods } from "@/actions/getMods";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -19,7 +19,7 @@ type FormattedMods = {
   }[];
 };
 export async function askAI(courseCodes: string[]): Promise<string> {
-  const mods = await getMods(courseCodes);
+  const mods = await fetchAllMods(courseCodes);
   const formattedMods: FormattedMods[] = [];
   mods.forEach((mod) => {
     const formattedIndexes = mod.indexes.map((index: IIndex) => {

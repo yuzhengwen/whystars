@@ -9,18 +9,18 @@ import {
   CommandGroup,
   CommandEmpty,
 } from "cmdk";
-import { MinimalMod } from "@/types/modtypes";
+import { ModInfoBasic } from "@/types/modtypes";
 import { baseUrl } from "@/lib/baseUrl";
 
 const ModSearchBar = ({
   onSelect,
   selectedStrings,
 }: {
-  onSelect: (mod: MinimalMod) => void;
+  onSelect: (mod: ModInfoBasic) => void;
   selectedStrings: string[];
 }) => {
   const [searchValue, setSearchValue] = React.useState("");
-  const [mods, setMods] = React.useState<MinimalMod[]>([]);
+  const [mods, setMods] = React.useState<ModInfoBasic[]>([]);
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const [onScrollbar, setOnScrollbar] = React.useState(false);
@@ -57,12 +57,12 @@ const ModSearchBar = ({
   useEffect(() => {
     const fetchData = async () => {
       const res = await fetch(`${baseUrl}/data/module_list.json`);
-      const data: MinimalMod[] = await res.json();
+      const data: ModInfoBasic[] = await res.json();
       setMods(data);
     };
     fetchData();
   }, []);
-  const handleSelect = (mod: MinimalMod) => {
+  const handleSelect = (mod: ModInfoBasic) => {
     setSearchValue("");
     onSelect(mod);
   };

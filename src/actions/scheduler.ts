@@ -4,7 +4,7 @@ import { ILesson, IMod } from "@/lib/models/modModel";
 import { checkLessonsOverlap } from "@/lib/timetableUtils";
 import {
   createModIndex,
-  ModIndexSimple,
+  ModIndexBasic,
   modIndexToSimple,
 } from "@/types/modtypes";
 import { TimetableGrid } from "@/types/TimetableGrid";
@@ -20,7 +20,7 @@ export const generateSchedules = async (selectedMods: IMod[]) => {
     return [];
   }
 
-  const allSchedules: ModIndexSimple[][] = [];
+  const allSchedules: ModIndexBasic[][] = [];
 
   // find all possible combinations of mods by backtracking
   const recursiveGenerate = async (
