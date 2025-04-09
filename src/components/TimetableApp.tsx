@@ -10,12 +10,13 @@ import { Button } from "@/components/ui/button";
 import { generateSchedules } from "@/actions/scheduler";
 import { baseUrl } from "@/lib/baseUrl";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod } from "@/actions/getMods";
 import SaveExistingTimetable from "@/components/SaveExistingTimetable";
 
 export default function TimetableApp() {
+  const router = useRouter();
   const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
     useTimetableStore();
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
@@ -53,16 +54,21 @@ export default function TimetableApp() {
   useEffect(() => {
     const fetchAndSetDefaults = async () => {
       if (timetableId && timetableName) {
-        const res = await fetch(`${baseUrl}/api/timetables/${timetableId}`);
-        const data = await res.json();
-        if (data) {
-          const selectedIndexes: ModIndexBasic[] = data.modindexes;
-          setModIndexesBasic(selectedIndexes);
+        try {
+          const res = await fetch(`${baseUrl}/api/timetables/${timetableId}`);
+          const data = await res.json();
+          if (data) {
+            const selectedIndexes: ModIndexBasic[] = data.modindexes;
+            setModIndexesBasic(selectedIndexes);
+          }
+        } catch {
+          // error if signed out
+          router.push("/plan");
         }
       }
     };
     fetchAndSetDefaults();
-  }, [timetableId, timetableName, setModIndexesBasic]);
+  }, [timetableId, timetableName, setModIndexesBasic, router]);
 
   const handleGenerateSchedule = async () => {
     const schedules = await generateSchedules(mods);
