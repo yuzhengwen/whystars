@@ -1,9 +1,8 @@
-export const baseUrl = () => {
-  let url: string = "";
-  if (process.env.NODE_ENV === "production") {
-    url = process.env.NEXT_VERCEL_URL || process.env.VERCEL_URL || "";
-  } else if (process.env.NODE_ENV === "development") {
-    url = "http://localhost:3000";
-  }
-  return url;
-};
+export const baseUrl: string =
+  process.env.NODE_ENV === "production"
+    ? process.env.NEXT_PUBLIC_VERCEL_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : ""
+    : "http://localhost:3000";
