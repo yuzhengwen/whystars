@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { generateSchedules } from "@/actions/scheduler";
 import { baseUrl } from "@/lib/baseUrl";
 import Link from "next/link";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod } from "@/actions/getMods";
 import SaveExistingTimetable from "@/components/SaveExistingTimetable";
