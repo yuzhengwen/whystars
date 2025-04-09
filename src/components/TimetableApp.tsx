@@ -35,6 +35,7 @@ export default function TimetableApp() {
 
   // for the input fields to sync with the selected mod indexes
   const selectedIndexes = useMemo(() => {
+    if (!modIndexesBasic) return {};
     const map: Record<string, string> = {};
     modIndexesBasic.forEach(({ courseCode, index }) => {
       map[courseCode] = index;
