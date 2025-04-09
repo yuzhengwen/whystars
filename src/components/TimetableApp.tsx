@@ -12,26 +12,22 @@ import { baseUrl } from "@/lib/baseUrl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
-import { fetchMod } from "@/actions/getMods";
+import { fetchMod, fetchMods } from "@/actions/getMods";
 import SaveExistingTimetable from "@/components/SaveExistingTimetable";
-import { getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function TimetableApp() {
+  const session = useSession();
   const router = useRouter();
   const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
     useTimetableStore();
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
   useEffect(() => {
-    const fetchMods = async () => {
-      const newMods = await Promise.all(
-        modIndexesBasic.map(async (mod) => {
-          const fetchedMod = await fetchMod(mod.courseCode);
-          return fetchedMod;
-        })
-      );
+    const updateMods = async () => {
+      const newMods = await fetchMods(modIndexesBasic.map((m) => m.courseCode));
       setMods(newMods);
     };
-    fetchMods();
+    updateMods();
   }, [modIndexesBasic]);
 
   // for the input fields to sync with the selected mod indexes
@@ -55,8 +51,7 @@ export default function TimetableApp() {
   useEffect(() => {
     const fetchAndSetDefaults = async () => {
       // if not signed in, redirect to /plan
-      const session = await getSession();
-      if (!session) {
+      if (session.status !== "authenticated") {
         router.push("/plan");
         return;
       }
@@ -100,7 +95,7 @@ export default function TimetableApp() {
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
         <div className="flex flex-col items-center justify-center w-full p-2 bg-card rounded-lg shadow-md mb-4">
-          {timetableId && (
+          {timetableId && session.status === "authenticated" && (
             <SaveExistingTimetable
               name={timetableName}
               id={parseInt(timetableId)}
@@ -128,9 +123,6 @@ export default function TimetableApp() {
             }}
             onRemove={(mod) => {
               removeCourse(mod.course_code);
-              setMods((prev) =>
-                prev.filter((m) => m.course_code !== mod.course_code)
-              );
             }}
             defaultIndex={
               selectedIndexes[mod.course_code] || mod.indexes[0].index
