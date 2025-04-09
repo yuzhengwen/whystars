@@ -1,14 +1,17 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "../../auth";
-import { ModIndex, modIndexToSimple } from "@/types/modtypes";
+import { ModIndexBasic } from "@/types/modtypes";
 
 export async function getAllUsers() {
   const users = await prisma.user.findMany();
   return users;
 }
 
-export async function addTimetable(formData: FormData, modIndexes: ModIndex[]) {
+export async function addTimetable(
+  formData: FormData,
+  modIndexes: ModIndexBasic[]
+) {
   const timetableName = formData.get("timetableName") as string;
 
   const session = await auth();
@@ -16,13 +19,12 @@ export async function addTimetable(formData: FormData, modIndexes: ModIndex[]) {
     throw new Error("User not authenticated");
   }
   const userId = session?.user?.id as string;
-  const modIndexesSimple = modIndexes.map((i) => modIndexToSimple(i)); // Convert mod indexes to a simpler format
   try {
     // Create a new timetable entry in the database
     await prisma.timetable.create({
       data: {
         name: timetableName,
-        modindexes: JSON.stringify(modIndexesSimple), // Store mod indexes as JSON
+        modindexes: modIndexes, // somehow it works
         userId: userId,
       },
     });
@@ -48,25 +50,5 @@ export async function deleteTimetable(timetableId: number) {
   } catch (error) {
     console.error("Error deleting timetable:", error);
     throw new Error("Error deleting timetable");
-  }
-}
-export async function getTimetable(timetableId: number) {
-  const session = await auth();
-  if (!session) {
-    throw new Error("User not authenticated");
-  }
-  const userId = session?.user?.id as string;
-  try {
-    // Get the timetable entry from the database
-    const timetable = await prisma.timetable.findFirst({
-      where: {
-        id: timetableId,
-        userId: userId,
-      },
-    });
-    return timetable;
-  } catch (error) {
-    console.error("Error getting timetable:", error);
-    throw new Error("Error getting timetable");
   }
 }

@@ -5,7 +5,7 @@ export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <main>
+    <main suppressHydrationWarning>
       <Providers>
         <header className="w-full border-b">
           <NavBar />

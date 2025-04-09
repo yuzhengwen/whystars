@@ -1,7 +1,7 @@
 import SearchForm from "@/components/SearchForm";
 import React from "react";
 import Link from "next/link";
-import { MinimalMod } from "@/types/modtypes";
+import { ModInfoBasic } from "@/types/modtypes";
 import fs from "fs";
 import path from "path";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ const page = async ({
   const { query = "", page = "1" } = await searchParams;
   const currentPage = Math.max(1, parseInt(page));
 
-  let data: MinimalMod[] = [];
+  let data: ModInfoBasic[] = [];
 
   try {
     const filePath = path.join(
@@ -102,7 +102,7 @@ const page = async ({
 
       <section className="flex flex-col items-center justify-start">
         <ul className="mt-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3 px-2 md:px-24 w-full">
-          {paginated.map((mod: MinimalMod) => (
+          {paginated.map((mod: ModInfoBasic) => (
             <li key={mod.course_code}>
               <Link
                 href={`/mods/${mod.course_code}`}

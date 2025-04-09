@@ -3,107 +3,65 @@ import SaveTimetable from "@/components/SaveTimetable";
 import ModListItem from "@/components/ModListItem";
 import TimetableDiv from "@/components/TimetableDiv";
 import { IMod } from "@/lib/models/modModel";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ModSearchBar from "@/components/ModSearchBar";
-import { ModIndex, ModLesson } from "@/types/modtypes";
+import { ModInfoBasic, ModIndexBasic } from "@/types/modtypes";
 import { Button } from "@/components/ui/button";
 import { generateSchedules } from "@/actions/scheduler";
 import { baseUrl } from "@/lib/baseUrl";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useTimetableStore } from "@/stores/useTimetableStore";
+import { fetchMod } from "@/actions/getMods";
 
 export default function Home() {
-  // record<course_code, index>
-  const [selectedIndexes, setSelectedIndexes] = useState<
-    Record<string, string>
-  >({});
-  const [selectedStrings, setSelectedStrings] = useState<string[]>([]);
-  const [mods, setMods] = useState<IMod[]>([]);
-  const [modIndexes, setModIndexes] = useState<ModIndex[]>([]);
-
-  const [selecting, setSelecting] = useState(false);
-
+  const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
+    useTimetableStore();
+  const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await Promise.all(
-        selectedStrings.map(async (code) => {
-          const res = await fetch(`${baseUrl}/data/mods/${code}.json`);
-          const data = await res.json();
-          return data;
+    const fetchMods = async () => {
+      const newMods = await Promise.all(
+        modIndexesBasic.map(async (mod) => {
+          const fetchedMod = await fetchMod(mod.courseCode);
+          return fetchedMod;
         })
       );
-      if (res) {
-        setMods(res);
+      setMods(newMods);
+    };
+    fetchMods();
+  }, [modIndexesBasic]);
+
+  // for the input fields to sync with the selected mod indexes
+  const selectedIndexes = useMemo(() => {
+    const map: Record<string, string> = {};
+    modIndexesBasic.forEach(({ courseCode, index }) => {
+      map[courseCode] = index;
+    });
+    return map;
+  }, [modIndexesBasic]);
+
+  const selectedStrings = useMemo(
+    () => modIndexesBasic.map((m) => m.courseCode),
+    [modIndexesBasic]
+  );
+
+  // load timetable from url params (timetableId)
+  const searchParams = useSearchParams();
+  const timetableId = searchParams.get("timetable") || "";
+  useEffect(() => {
+    const fetchAndSetDefaults = async () => {
+      if (timetableId) {
+        const res = await fetch(`${baseUrl}/api/timetables/${timetableId}`);
+        const data = await res.json();
+        if (data) {
+          const selectedIndexes: ModIndexBasic[] = data.modindexes;
+          setModIndexesBasic(selectedIndexes);
+        }
       }
     };
-    fetchData();
-  }, [selectedStrings]);
+    fetchAndSetDefaults();
+  }, [timetableId, setModIndexesBasic]);
 
-  useEffect(() => {
-    // Update modIndexes whenever mods or selectedIndexes change
-    const updatedModIndexes = mods.map((mod: IMod) => {
-      const indexObj =
-        mod.indexes.find((i) => i.index === selectedIndexes[mod.course_code]) ||
-        mod.indexes[0];
-      return {
-        courseName: mod.course_name,
-        courseCode: mod.course_code,
-        index: indexObj.index,
-        lessons: indexObj.lessons,
-        selected: true,
-      };
-    });
-    setModIndexes(updatedModIndexes);
-  }, [mods, selectedIndexes]);
-
-  const removeAllButClicked = (mods: ModIndex[], clicked: ModLesson) => {
-    return mods.filter(
-      (mod) =>
-        mod.courseCode !== clicked.courseCode || mod.index === clicked.index
-    );
-  };
-  const handleClickOnLesson = (clicked: ModLesson) => {
-    console.log("clicked", clicked);
-    if (clicked.selected) {
-      if (!selecting) {
-        const mod = mods.find((mod) => mod.course_code === clicked.courseCode);
-        if (mod) {
-          // add all indexes of the clicked mod
-          const newIndexes = mod.indexes
-            .map((index) => ({
-              courseName: mod.course_name,
-              courseCode: mod.course_code,
-              index: index.index,
-              lessons: index.lessons,
-              selected: false,
-            }))
-            // remove the index being clicked from the newIndexes
-            .filter((index) => index.index !== clicked.index);
-          console.log("newIndexes", newIndexes);
-          setModIndexes((prev) => [...prev, ...newIndexes]);
-          setSelecting(true);
-        }
-      } else {
-        // remove all other indexes except the clicked one
-        setModIndexes((prev) => removeAllButClicked(prev, clicked));
-        setSelecting(false);
-      }
-    } else {
-      setModIndexes((prev) =>
-        removeAllButClicked(prev, clicked)
-          // set the clicked one to selected
-          .map((m) =>
-            m.courseCode === clicked.courseCode && m.index === clicked.index
-              ? { ...m, selected: true }
-              : m
-          )
-      );
-      setSelectedIndexes((prev) => ({
-        ...prev,
-        [clicked.courseCode]: clicked.index,
-      }));
-      setSelecting(false);
-    }
-  };
   const handleGenerateSchedule = async () => {
     const schedules = await generateSchedules(mods);
     if (!schedules || schedules.length === 0) {
@@ -111,11 +69,17 @@ export default function Home() {
       return;
     }
     schedules[0].forEach((schedule) => {
-      setSelectedIndexes((prev) => ({
-        ...prev,
-        [schedule.courseCode]: schedule.index,
-      }));
+      setCourseIndex(schedule.courseCode, schedule.courseName, schedule.index);
     });
+  };
+  const handleSelectMod = async (selected: ModInfoBasic) => {
+    const newMod = await fetchMod(selected.course_code);
+    setMods((prev) => [...prev, newMod]);
+    setCourseIndex(
+      newMod.course_code,
+      newMod.course_name,
+      newMod.indexes[0].index
+    );
   };
 
   return (
@@ -124,30 +88,26 @@ export default function Home() {
         <Button>
           <Link href="/mytimetables">My Timetables</Link>
         </Button>
-        <SaveTimetable modIndexes={modIndexes} />
+        <SaveTimetable />
         <Button onClick={handleGenerateSchedule} className="mb-5">
           Generate Schedules
         </Button>
         {/* <AiButton /> */}
         <ModSearchBar
           selectedStrings={selectedStrings}
-          onSelect={(mod) =>
-            setSelectedStrings((prev) => [...prev, mod.course_code])
-          }
+          onSelect={handleSelectMod}
         />
         {mods.map((mod: IMod) => (
           <ModListItem
             key={mod.course_code}
             mod={mod}
             onIndexChange={(mod, newIndex) => {
-              setSelectedIndexes((prev) => ({
-                ...prev,
-                [mod.course_code]: newIndex,
-              }));
+              setCourseIndex(mod.course_code, mod.course_name, newIndex);
             }}
             onRemove={(mod) => {
-              setSelectedStrings((prev) =>
-                prev.filter((code) => code !== mod.course_code)
+              removeCourse(mod.course_code);
+              setMods((prev) =>
+                prev.filter((m) => m.course_code !== mod.course_code)
               );
             }}
             defaultIndex={
@@ -156,7 +116,7 @@ export default function Home() {
           />
         ))}
       </div>
-      <TimetableDiv modIndexes={modIndexes} handleClick={handleClickOnLesson} />
+      <TimetableDiv mods={mods} />
     </div>
   );
 }

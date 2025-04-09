@@ -1,20 +1,43 @@
 "use client";
 import { parseLessonTiming } from "@/lib/dates";
-import { ModIndex, ModLesson } from "@/types/modtypes";
-import React from "react";
+import {
+  createModIndexWithString,
+  createModLesson,
+  ModIndex,
+  ModIndexBasic,
+  ModLesson,
+} from "@/types/modtypes";
 import LessonBlock from "./LessonBlock";
 import { createTimeGrid, mapLessonColumns } from "@/lib/timetableUtils";
+import { useTimetableStore } from "@/stores/useTimetableStore";
+import { IMod } from "@/lib/models/modModel";
+import { useEffect, useState } from "react";
 
 const timeSlotHeight = 3; // 3rem
 
-export default function TimetableDiv({
-  modIndexes,
-  handleClick,
-}: {
-  modIndexes: ModIndex[];
-  handleClick: (lesson: ModLesson) => void;
-}) {
+export default function TimetableDiv({ mods }: { mods: IMod[] }) {
+  const { modIndexesBasic, setCourseIndex } = useTimetableStore();
+
+  // handles local state of which mod is currently being clicked on
+  const [selected, setSelected] = useState<ModIndexBasic | null>(null);
+
+  // this state is local and used to track the selected + unselected indexes to be displayed
+  // when the user clicks on a mod, it will add all the indexes of that mod to the timetable
+  // if there is an actual change in mods/indexes selected, must also update the global state (TimetableStore)
+  const [modIndexes, setModIndexes] = useState<ModIndex[]>([]);
+  useEffect(() => {
+    const newModIndexes = mods.map((mod) =>
+      createModIndexWithString(
+        mod,
+        modIndexesBasic.find((m) => m.courseCode === mod.course_code)?.index ||
+          ""
+      )
+    );
+    setModIndexes(newModIndexes);
+  }, [mods, modIndexesBasic]);
+
   console.log(`Rendering timetable with ${modIndexes.length} modules`);
+
   const { days, times, grid } = createTimeGrid();
   // populate the grid with lessons
   modIndexes.forEach((mod) => {
@@ -28,24 +51,71 @@ export default function TimetableDiv({
           timeRange: { startTime, duration },
         } = parseLessonTiming(lesson);
         const rowSpan = Math.ceil(duration / 30);
-        grid[day][startTime].push({
-          courseName: mod.courseName,
-          courseCode: mod.courseCode,
-          index: mod.index,
-          lesson_type: lesson.lesson_type,
-          group: lesson.group,
-          day: lesson.day,
-          time: lesson.time,
-          venue: lesson.venue,
-          remark: lesson.remark,
-          rowSpan,
-          selected: mod.selected,
-        });
+        grid[day][startTime].push(
+          createModLesson(mod, lesson, rowSpan, mod.selected)
+        );
       });
     }
   });
   const columns = mapLessonColumns(grid);
 
+  const removeAllButClicked = (clicked: ModIndexBasic) => {
+    setModIndexes((prev) =>
+      prev.filter(
+        (mod) =>
+          mod.courseCode !== clicked.courseCode || mod.index === clicked.index
+      )
+    );
+  };
+  const expandMod = (clicked: ModIndexBasic) => {
+    const mod = mods.find((mod) => mod.course_code === clicked.courseCode);
+    if (!mod) return;
+    // add all indexes of the clicked mod
+    const newIndexes = mod.indexes
+      .map((index) => ({
+        courseName: mod.course_name,
+        courseCode: mod.course_code,
+        index: index.index,
+        lessons: index.lessons,
+        selected: false,
+      }))
+      // remove the index being clicked from the newIndexes
+      .filter((index) => index.index !== clicked.index);
+    setModIndexes((prev) => [...prev, ...newIndexes]);
+  };
+
+  const handleClick = (clicked: ModLesson) => {
+    console.log("clicked", clicked);
+    if (clicked.selected && !selected) {
+      expandMod(clicked);
+      setSelected(clicked);
+    } else if (clicked.selected && selected) {
+      // clicked a different mod
+      if (selected.courseCode !== clicked.courseCode) {
+        removeAllButClicked(selected);
+        expandMod(clicked);
+        setSelected(clicked);
+        return;
+      }
+      // clicked the same mod that was selected
+      removeAllButClicked(clicked);
+      setSelected(null);
+    } else if (!clicked.selected) {
+      removeAllButClicked(clicked);
+      setModIndexes((prev) =>
+        prev
+          // set the clicked one to selected
+          .map((m) =>
+            m.courseCode === clicked.courseCode && m.index === clicked.index
+              ? { ...m, selected: true }
+              : m
+          )
+      );
+      // since there is an actual change in selected indexes, update the global state
+      setCourseIndex(clicked.courseCode, clicked.courseName, clicked.index);
+      setSelected(null);
+    }
+  };
   // not sure why overflow-y-hidden works without cutting off anything but ok
   return (
     <div className="flex w-full overflow-x-auto overflow-y-hidden">

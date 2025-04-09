@@ -1,19 +1,20 @@
 "use client";
 import { addTimetable } from "@/actions/timetable";
-import { ModIndex } from "@/types/modtypes";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useTimetableStore } from "@/stores/useTimetableStore";
 
-const SaveTimetable = ({ modIndexes }: { modIndexes: ModIndex[] }) => {
+const SaveTimetable = () => {
   const [saving, setSaving] = useState(false);
+  const {modIndexesBasic} = useTimetableStore();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const formData = new FormData(e.currentTarget);
     e.preventDefault();
     setSaving(true);
     try {
-      await addTimetable(formData, modIndexes);
+      await addTimetable(formData, modIndexesBasic);
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);

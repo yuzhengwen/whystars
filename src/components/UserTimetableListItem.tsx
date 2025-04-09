@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 import { deleteTimetable } from "@/actions/timetable";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface Timetable {
   id: number;
@@ -16,14 +17,9 @@ const UserTimetableListItem = ({ timetable }: { timetable: Timetable }) => {
     <div className="p-4 rounded-lg shadow-md mb-4 w-full max-w-md bg-card flex items-center">
       <span className="text-lg">{timetable.name}</span>
       <div className="flex gap-2 ml-auto">
-        <Button
-          variant="outline"
-          onClick={() => {
-            alert("Coming soon!");
-          }}
-        >
-          View Timetable
-        </Button>
+        <Link href={`/plan/?timetable=${timetable.id}`}>
+          <Button variant="outline">View Timetable</Button>
+        </Link>
         <Button
           variant="destructive"
           onClick={async () => {
