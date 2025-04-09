@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "../../auth";
 import { ModIndexBasic } from "@/types/modtypes";
+import { Prisma } from "@prisma/client";
 
 export async function getAllUsers() {
   const users = await prisma.user.findMany();
@@ -24,7 +25,7 @@ export async function addTimetable(
     await prisma.timetable.create({
       data: {
         name: timetableName,
-        modindexes: modIndexes, // somehow it works
+        modindexes: modIndexes as unknown as Prisma.InputJsonArray, // somehow it works
         userId: userId,
       },
     });
@@ -69,7 +70,7 @@ export async function editTimetable(
         userId: userId,
       },
       data: {
-        modindexes: modIndexes, // somehow it works
+        modindexes: modIndexes as unknown as Prisma.InputJsonArray, // somehow it works
       },
     });
   } catch (error) {

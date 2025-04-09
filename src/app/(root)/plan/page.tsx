@@ -13,7 +13,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod } from "@/actions/getMods";
-import { editTimetable } from "@/actions/timetable";
 import SaveExistingTimetable from "@/components/SaveExistingTimetable";
 
 export default function Home() {
