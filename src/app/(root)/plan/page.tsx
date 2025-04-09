@@ -13,6 +13,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod } from "@/actions/getMods";
+import { editTimetable } from "@/actions/timetable";
+import SaveExistingTimetable from "@/components/SaveExistingTimetable";
 
 export default function Home() {
   const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
@@ -47,10 +49,11 @@ export default function Home() {
 
   // load timetable from url params (timetableId)
   const searchParams = useSearchParams();
-  const timetableId = searchParams.get("timetable") || "";
+  const timetableId = searchParams.get("id") || "";
+  const timetableName = searchParams.get("name") || "";
   useEffect(() => {
     const fetchAndSetDefaults = async () => {
-      if (timetableId) {
+      if (timetableId && timetableName) {
         const res = await fetch(`${baseUrl}/api/timetables/${timetableId}`);
         const data = await res.json();
         if (data) {
@@ -60,7 +63,7 @@ export default function Home() {
       }
     };
     fetchAndSetDefaults();
-  }, [timetableId, setModIndexesBasic]);
+  }, [timetableId, timetableName, setModIndexesBasic]);
 
   const handleGenerateSchedule = async () => {
     const schedules = await generateSchedules(mods);
@@ -85,10 +88,18 @@ export default function Home() {
   return (
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
-        <Button>
-          <Link href="/mytimetables">My Timetables</Link>
-        </Button>
-        <SaveTimetable />
+        <div className="flex flex-col items-center justify-center w-full p-2 bg-card rounded-lg shadow-md mb-4">
+          {timetableId && (
+            <SaveExistingTimetable
+              name={timetableName}
+              id={parseInt(timetableId)}
+            />
+          )}
+          <Button>
+            <Link href="/mytimetables">My Timetables</Link>
+          </Button>
+          <SaveTimetable />
+        </div>
         <Button onClick={handleGenerateSchedule} className="mb-5">
           Generate Schedules
         </Button>

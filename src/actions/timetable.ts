@@ -52,3 +52,28 @@ export async function deleteTimetable(timetableId: number) {
     throw new Error("Error deleting timetable");
   }
 }
+export async function editTimetable(
+  timetableId: number,
+  modIndexes: ModIndexBasic[]
+) {
+  const session = await auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
+  const userId = session?.user?.id as string;
+  try {
+    // Update the timetable entry in the database
+    await prisma.timetable.update({
+      where: {
+        id: timetableId,
+        userId: userId,
+      },
+      data: {
+        modindexes: modIndexes, // somehow it works
+      },
+    });
+  } catch (error) {
+    console.error("Error editing timetable:", error);
+    throw new Error("Error editing timetable");
+  }
+}

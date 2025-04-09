@@ -17,7 +17,7 @@ const UserTimetableListItem = ({ timetable }: { timetable: Timetable }) => {
     <div className="p-4 rounded-lg shadow-md mb-4 w-full max-w-md bg-card flex items-center">
       <span className="text-lg">{timetable.name}</span>
       <div className="flex gap-2 ml-auto">
-        <Link href={`/plan/?timetable=${timetable.id}`}>
+        <Link href={`/plan/?name=${timetable.name}&id=${timetable.id}`}>
           <Button variant="outline">View Timetable</Button>
         </Link>
         <Button

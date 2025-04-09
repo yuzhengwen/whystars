@@ -7,7 +7,7 @@ import { useTimetableStore } from "@/stores/useTimetableStore";
 
 const SaveTimetable = () => {
   const [saving, setSaving] = useState(false);
-  const {modIndexesBasic} = useTimetableStore();
+  const { modIndexesBasic } = useTimetableStore();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const formData = new FormData(e.currentTarget);
@@ -24,8 +24,8 @@ const SaveTimetable = () => {
     }
   };
   return (
-    <div className="flex flex-col items-center justify-center w-full p-4 border rounded shadow-md m-5">
-      <h1 className="text-2xl font-bold">Save Timetable</h1>
+    <div className="flex flex-col items-center justify-center w-full p-2">
+      <h1 className="text-xl font-semibold">Save New Timetable</h1>
       <form onSubmit={handleSubmit} className="flex flex-col mt-4">
         <div className="flex gap-3 items-center justify-center w-full">
           <Input
