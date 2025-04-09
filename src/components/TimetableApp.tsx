@@ -22,6 +22,8 @@ export default function TimetableApp() {
   const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
     useTimetableStore();
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
+  // mods list with full details automatically updated
+  // this has some delay, which means if any component is relying on this, there will be some delay
   useEffect(() => {
     const updateMods = async () => {
       const newMods = await fetchMods(modIndexesBasic.map((m) => m.courseCode));

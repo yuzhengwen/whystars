@@ -26,6 +26,8 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
   // if there is an actual change in mods/indexes selected, must also update the global state (TimetableStore)
   const [modIndexes, setModIndexes] = useState<ModIndex[]>([]);
   useEffect(() => {
+    // if number is different, means one hasn't updated yet, wait
+    if (mods.length !== modIndexesBasic.length) return;
     // modIndexesBasic is the global source of truth
     const newIndexes = modIndexesBasic.map((modIndex) => {
       const detailedMod = mods.find(
