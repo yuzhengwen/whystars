@@ -26,15 +26,15 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
   // if there is an actual change in mods/indexes selected, must also update the global state (TimetableStore)
   const [modIndexes, setModIndexes] = useState<ModIndex[]>([]);
   useEffect(() => {
-    setModIndexes(
-      mods.map((mod) =>
-        createModIndexWithString(
-          mod,
-          modIndexesBasic.find((m) => m.courseCode === mod.course_code)
-            ?.index || ""
-        )
-      )
-    );
+    // modIndexesBasic is the global source of truth
+    const newIndexes = modIndexesBasic.map((modIndex) => {
+      const detailedMod = mods.find(
+        (m) => m.course_code === modIndex.courseCode
+      );
+      if (!detailedMod) throw new Error(`${modIndex.courseCode} not found`);
+      return createModIndexWithString(detailedMod, modIndex.index);
+    });
+    setModIndexes(newIndexes);
   }, [mods, modIndexesBasic]);
 
   const { days, times, grid } = createTimeGrid();
