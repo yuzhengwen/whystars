@@ -39,7 +39,8 @@ const NavUserAccount = ({ user }: Props) => {
           asChild
           onClick={(e) => {
             e.preventDefault();
-            signOut().catch(console.error);
+
+            signOut({ redirectTo: "/" }).catch(console.error);
           }}
         >
           <Link href="/settings">

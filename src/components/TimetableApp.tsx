@@ -43,10 +43,9 @@ export default function TimetableApp() {
     return map;
   }, [modIndexesBasic]);
 
-  const selectedStrings = useMemo(
-    () => modIndexesBasic.map((m) => m.courseCode),
-    [modIndexesBasic]
-  );
+  const selectedStrings = useMemo(() => {
+    return modIndexesBasic ? modIndexesBasic.map((m) => m.courseCode) : [];
+  }, [modIndexesBasic]);
 
   // load timetable from url params (timetableId)
   const searchParams = useSearchParams();
