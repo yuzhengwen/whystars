@@ -62,7 +62,7 @@ const ModSearchBar = ({
   useEffect(() => {
     setOpen(searchValue.length > 0);
   }, [searchValue]);
-  
+
   const handleSelect = (mod: ModInfoBasic) => {
     setSearchValue("");
     onSelect(mod);
