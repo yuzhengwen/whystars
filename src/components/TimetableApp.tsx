@@ -67,7 +67,7 @@ export default function TimetableApp() {
 
   return (
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
-      <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
+      <div className="flex flex-col w-full md:w-1/3 justify-start items-start">
         {session.status === "authenticated" && <UserTimetableSelect />}
         <GenerateSchedule mods={mods} />
         {/* <AiButton /> */}

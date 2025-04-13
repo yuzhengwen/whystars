@@ -12,13 +12,17 @@ import {
 import Link from "next/link";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { useUserTimetables } from "@/context/TimetableContexts";
+import { Spinner } from "./ui/spinner";
+import { useRouter } from "next/navigation";
 
 const UserTimetableSelect = () => {
+  const router = useRouter();
   const [timetables, setTimetables] = useState<timetable[]>([]);
   const modIndexesBasic = useTimetableStore((state) => state.modIndexesBasic);
   const [selectedTimetable, setSelectedTimetable] = useState<timetable | null>(
     null
   );
+  const [loading, setLoading] = useState(false);
   /*
   const fetchTimetables = useCallback(async () => {
     const response = await fetch("/api/timetables");
@@ -35,8 +39,8 @@ const UserTimetableSelect = () => {
   return (
     <>
       {timetables.length > 0 && (
-        <>
-          <div className="flex flex-col items-start justify-start w-full mt-4 gap-4">
+        <div className="flex flex-col items-start justify-start w-full mt-4 gap-4">
+          <div className="flex flex-row gap-2">
             <ComboBoxPro
               className="w-fit min-w-64"
               options={timetables.map((timetable) => ({
@@ -52,41 +56,47 @@ const UserTimetableSelect = () => {
                 setSelectedTimetable(selected || null);
               }}
               onCreate={async (value) => {
+                setLoading(true);
                 const newTimetable = await addTimetable(value, modIndexesBasic);
                 setTimetables((prev) => [...prev, newTimetable]);
                 setSelectedTimetable(newTimetable);
+                setLoading(false);
+                router.push(`/plan/?timetableId=${newTimetable.id}`);
               }}
             />
-            {selectedTimetable && (
-              <div className="flex items-center gap-1">
-                <Link href={`/plan/?timetableId=${selectedTimetable.id}`}>
-                  <Button variant="outline">Open</Button>
-                </Link>
-                <Button
-                  onClick={async () => {
-                    await editTimetable(selectedTimetable.id, modIndexesBasic);
-                  }}
-                >
-                  <Save />
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={async () => {
-                    await deleteTimetable(selectedTimetable.id);
-                    setTimetables((prev) =>
-                      prev.filter(
-                        (timetable) => timetable.id !== selectedTimetable.id
-                      )
-                    );
-                    setSelectedTimetable(null);
-                  }}
-                >
-                  <Trash2 />
-                </Button>
-              </div>
-            )}
+            {loading && <Spinner />}
           </div>
-        </>
+          {selectedTimetable && (
+            <div className="flex items-center gap-1">
+              <Link href={`/plan/?timetableId=${selectedTimetable.id}`}>
+                <Button variant="outline">Open</Button>
+              </Link>
+              <Button
+                onClick={async () => {
+                  await editTimetable(selectedTimetable.id, modIndexesBasic);
+                }}
+              >
+                <Save />
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  setLoading(true);
+                  await deleteTimetable(selectedTimetable.id);
+                  setTimetables((prev) =>
+                    prev.filter(
+                      (timetable) => timetable.id !== selectedTimetable.id
+                    )
+                  );
+                  setSelectedTimetable(null);
+                  setLoading(false);
+                }}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          )}
+        </div>
       )}
     </>
   );

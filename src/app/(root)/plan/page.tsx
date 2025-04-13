@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import TimetableContextWrapper from "@/components/TimetableContextWrapper";
 import { getTimetableById, getUserTimetables } from "@/actions/timetable";
 import { Suspense } from "react";
+import LoadingPage from "@/components/LoadingPage";
 
 export default async function Page({
   searchParams,
@@ -24,7 +25,7 @@ export default async function Page({
   if (session && session.user && session.user.id)
     userTimetables = await getUserTimetables(session.user.id);
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingPage />}>
       <TimetableContextWrapper
         initialTimetable={timetable}
         userTimetables={userTimetables}
