@@ -54,7 +54,7 @@ const UserTimetableSelect = () => {
             {selectedTimetable && (
               <div className="flex items-center gap-1">
                 <Link
-                  href={`/plan/?name=${selectedTimetable.name}&id=${selectedTimetable.id}`}
+                  href={`/plan/?timetableId=${selectedTimetable.id}`}
                 >
                   <Button variant="outline">Open</Button>
                 </Link>

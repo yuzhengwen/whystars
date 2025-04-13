@@ -1,4 +1,5 @@
 import { IIndex, ILesson, IMod } from "@/lib/models/modModel";
+import { z } from "zod";
 
 export type ModInfoBasic = {
   course_code: string;
@@ -10,6 +11,13 @@ export interface ModIndexBasic {
   courseCode: string;
   index: string;
 }
+// load timetable from url params (timetableId)
+const ModIndexBasicSchema = z.object({
+  courseName: z.string(),
+  courseCode: z.string(),
+  index: z.string(),
+});
+export const ModIndexBasicArraySchema = z.array(ModIndexBasicSchema);
 // Represents the CHOSEN mod + index
 export type ModIndex = ModIndexBasic & {
   lessons: ILesson[];

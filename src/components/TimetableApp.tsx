@@ -4,19 +4,25 @@ import TimetableDiv from "@/components/TimetableDiv";
 import { IMod } from "@/lib/models/modModel";
 import React, { useEffect, useMemo, useState } from "react";
 import ModSearchBar from "@/components/ModSearchBar";
-import { ModInfoBasic, ModIndexBasic } from "@/types/modtypes";
+import {
+  ModInfoBasic,
+  ModIndexBasic,
+  ModIndexBasicArraySchema,
+} from "@/types/modtypes";
 import { Button } from "@/components/ui/button";
 import { generateSchedules } from "@/actions/scheduler";
-import { baseUrl } from "@/lib/baseUrl";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod, fetchMods } from "@/actions/getMods";
 import { useSession } from "next-auth/react";
 import UserTimetableSelect from "./UserTimetableSelect";
+import { timetable } from "@prisma/client";
 
-export default function TimetableApp() {
+interface TimetableAppProps {
+  initialTimetable?: timetable | null;
+}
+
+export default function TimetableApp(props: TimetableAppProps) {
   const session = useSession();
-  const router = useRouter();
   const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
     useTimetableStore();
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
@@ -44,32 +50,14 @@ export default function TimetableApp() {
     return modIndexesBasic ? modIndexesBasic.map((m) => m.courseCode) : [];
   }, [modIndexesBasic]);
 
-  // load timetable from url params (timetableId)
-  const searchParams = useSearchParams();
-  const timetableId = searchParams.get("id") || "";
-  const timetableName = searchParams.get("name") || "";
+  // set initial timetable (if any) 
   useEffect(() => {
-    const fetchAndSetDefaults = async () => {
-      // if not signed in, redirect to /plan
-      if (session.status !== "authenticated") {
-        router.push("/plan");
-        return;
-      }
-      if (timetableId && timetableName) {
-        try {
-          const res = await fetch(`${baseUrl}/api/timetables/${timetableId}`);
-          const data = await res.json();
-          if (data) {
-            const selectedIndexes: ModIndexBasic[] = data.modindexes;
-            setModIndexesBasic(selectedIndexes);
-          }
-        } catch {
-          router.push("/plan");
-        }
-      }
-    };
-    fetchAndSetDefaults();
-  }, [timetableId, timetableName, setModIndexesBasic, router, session.status]);
+    if (!props.initialTimetable) return;
+    const selectedIndexes: ModIndexBasic[] = ModIndexBasicArraySchema.parse(
+      props.initialTimetable.modindexes
+    );
+    setModIndexesBasic(selectedIndexes);
+  }, [setModIndexesBasic, props.initialTimetable]);
 
   const handleGenerateSchedule = async () => {
     const schedules = await generateSchedules(mods);
