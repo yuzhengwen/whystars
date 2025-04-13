@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { timetable } from "@prisma/client";
 import { ComboBoxPro } from "./ComboBoxPro";
 import { Button } from "./ui/button";
@@ -11,6 +11,7 @@ import {
 } from "@/actions/timetable";
 import Link from "next/link";
 import { useTimetableStore } from "@/stores/useTimetableStore";
+import { useUserTimetables } from "@/context/TimetableContexts";
 
 const UserTimetableSelect = () => {
   const [timetables, setTimetables] = useState<timetable[]>([]);
@@ -18,6 +19,7 @@ const UserTimetableSelect = () => {
   const [selectedTimetable, setSelectedTimetable] = useState<timetable | null>(
     null
   );
+  /*
   const fetchTimetables = useCallback(async () => {
     const response = await fetch("/api/timetables");
     const data = await response.json();
@@ -25,7 +27,11 @@ const UserTimetableSelect = () => {
   }, []);
   useEffect(() => {
     fetchTimetables();
-  }, [fetchTimetables]);
+  }, [fetchTimetables]);*/
+  const userTimetables = useUserTimetables();
+  useEffect(() => {
+    setTimetables(userTimetables);
+  }, [userTimetables]);
   return (
     <>
       {timetables.length > 0 && (
@@ -53,9 +59,7 @@ const UserTimetableSelect = () => {
             />
             {selectedTimetable && (
               <div className="flex items-center gap-1">
-                <Link
-                  href={`/plan/?timetableId=${selectedTimetable.id}`}
-                >
+                <Link href={`/plan/?timetableId=${selectedTimetable.id}`}>
                   <Button variant="outline">Open</Button>
                 </Link>
                 <Button

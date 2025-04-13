@@ -1,3 +1,4 @@
+"use client";
 import { generateSchedules } from "@/actions/scheduler";
 import { IMod } from "@/lib/models/modModel";
 import { useTimetableStore } from "@/stores/useTimetableStore";

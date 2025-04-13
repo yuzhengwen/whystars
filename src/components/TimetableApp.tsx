@@ -13,14 +13,10 @@ import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod, fetchMods } from "@/actions/getMods";
 import { useSession } from "next-auth/react";
 import UserTimetableSelect from "./UserTimetableSelect";
-import { timetable } from "@prisma/client";
 import GenerateSchedule from "./GenerateSchedule";
+import { useInitialTimetable } from "@/context/TimetableContexts";
 
-interface TimetableAppProps {
-  initialTimetable?: timetable | null;
-}
-
-export default function TimetableApp(props: TimetableAppProps) {
+export default function TimetableApp() {
   const session = useSession();
   const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
     useTimetableStore();
@@ -50,13 +46,14 @@ export default function TimetableApp(props: TimetableAppProps) {
   }, [modIndexesBasic]);
 
   // set initial timetable (if any)
+  const initialTimetable = useInitialTimetable();
   useEffect(() => {
-    if (!props.initialTimetable) return;
+    if (!initialTimetable) return;
     const selectedIndexes: ModIndexBasic[] = ModIndexBasicArraySchema.parse(
-      props.initialTimetable.modindexes
+      initialTimetable.modindexes
     );
     setModIndexesBasic(selectedIndexes);
-  }, [setModIndexesBasic, props.initialTimetable]);
+  }, [setModIndexesBasic, initialTimetable]);
 
   const handleSelectMod = async (selected: ModInfoBasic) => {
     const newMod = await fetchMod(selected.course_code);
@@ -72,7 +69,7 @@ export default function TimetableApp(props: TimetableAppProps) {
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
         {session.status === "authenticated" && <UserTimetableSelect />}
-          <GenerateSchedule mods={mods} />
+        <GenerateSchedule mods={mods} />
         {/* <AiButton /> */}
         <ModSearchBar
           selectedStrings={selectedStrings}
