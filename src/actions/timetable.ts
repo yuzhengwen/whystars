@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "../../auth";
 import { ModIndexBasic } from "@/types/modtypes";
-import { Prisma } from "@prisma/client";
+import { Prisma, timetable } from "@prisma/client";
 
 export async function getAllUsers() {
   const users = await prisma.user.findMany();
@@ -10,11 +10,9 @@ export async function getAllUsers() {
 }
 
 export async function addTimetable(
-  formData: FormData,
+  timetableName: string,
   modIndexes: ModIndexBasic[]
-) {
-  const timetableName = formData.get("timetableName") as string;
-
+): Promise<timetable> {
   const session = await auth();
   if (!session) {
     throw new Error("User not authenticated");
@@ -22,13 +20,14 @@ export async function addTimetable(
   const userId = session?.user?.id as string;
   try {
     // Create a new timetable entry in the database
-    await prisma.timetable.create({
+    const created = await prisma.timetable.create({
       data: {
         name: timetableName,
         modindexes: modIndexes as unknown as Prisma.InputJsonArray, // somehow it works
         userId: userId,
       },
     });
+    return created;
   } catch (error) {
     console.error("Error adding timetable:", error);
     throw new Error("Error adding timetable");

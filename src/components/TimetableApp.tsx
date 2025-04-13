@@ -1,5 +1,4 @@
 "use client";
-import SaveTimetable from "@/components/SaveTimetable";
 import ModListItem from "@/components/ModListItem";
 import TimetableDiv from "@/components/TimetableDiv";
 import { IMod } from "@/lib/models/modModel";
@@ -9,12 +8,11 @@ import { ModInfoBasic, ModIndexBasic } from "@/types/modtypes";
 import { Button } from "@/components/ui/button";
 import { generateSchedules } from "@/actions/scheduler";
 import { baseUrl } from "@/lib/baseUrl";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod, fetchMods } from "@/actions/getMods";
-import SaveExistingTimetable from "@/components/SaveExistingTimetable";
 import { useSession } from "next-auth/react";
+import UserTimetableSelect from "./UserTimetableSelect";
 
 export default function TimetableApp() {
   const session = useSession();
@@ -96,21 +94,12 @@ export default function TimetableApp() {
   return (
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
-        <div className="flex flex-col items-center justify-center w-full p-2 bg-card rounded-lg shadow-md mb-4">
-          {timetableId && session.status === "authenticated" && (
-            <SaveExistingTimetable
-              name={timetableName}
-              id={parseInt(timetableId)}
-            />
-          )}
-          <Button>
-            <Link href="/mytimetables">My Timetables</Link>
+        {session.status === "authenticated" && <UserTimetableSelect />}
+        <div className="flex flex-col items-start justify-center w-full mt-4 gap-4">
+          <Button onClick={handleGenerateSchedule} className="mb-5">
+            Generate Schedules
           </Button>
-          <SaveTimetable />
         </div>
-        <Button onClick={handleGenerateSchedule} className="mb-5">
-          Generate Schedules
-        </Button>
         {/* <AiButton /> */}
         <ModSearchBar
           selectedStrings={selectedStrings}

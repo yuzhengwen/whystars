@@ -3,8 +3,10 @@ import React, { Suspense } from "react";
 
 export default function Page() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
-      <TimetableApp />
-    </Suspense>
+    <>
+      <Suspense fallback={<p>Loading...</p>}>
+        <TimetableApp />
+      </Suspense>
+    </>
   );
 }

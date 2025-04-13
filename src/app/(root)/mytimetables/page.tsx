@@ -4,10 +4,14 @@ import { prisma } from "@/lib/prisma";
 import UserTimetableListItem from "@/components/UserTimetableListItem";
 
 const page = async () => {
+  console.time("auth");
   const session = await auth();
+  console.timeEnd("auth");
+  console.time("findMany");
   const timetables = await prisma.timetable.findMany({
     where: { userId: session?.user?.id },
   });
+  console.timeEnd("findMany");
   return (
     <div className="flex flex-col items-center justify-center w-full">
       <p className="mt-4 text-lg">
