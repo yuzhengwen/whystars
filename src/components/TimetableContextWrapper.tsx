@@ -1,4 +1,3 @@
-// TimetableAppWrapper.tsx
 "use client";
 
 import TimetableApp from "./TimetableApp";
