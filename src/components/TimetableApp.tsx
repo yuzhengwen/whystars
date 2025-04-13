@@ -9,13 +9,12 @@ import {
   ModIndexBasic,
   ModIndexBasicArraySchema,
 } from "@/types/modtypes";
-import { Button } from "@/components/ui/button";
-import { generateSchedules } from "@/actions/scheduler";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod, fetchMods } from "@/actions/getMods";
 import { useSession } from "next-auth/react";
 import UserTimetableSelect from "./UserTimetableSelect";
 import { timetable } from "@prisma/client";
+import GenerateSchedule from "./GenerateSchedule";
 
 interface TimetableAppProps {
   initialTimetable?: timetable | null;
@@ -50,7 +49,7 @@ export default function TimetableApp(props: TimetableAppProps) {
     return modIndexesBasic ? modIndexesBasic.map((m) => m.courseCode) : [];
   }, [modIndexesBasic]);
 
-  // set initial timetable (if any) 
+  // set initial timetable (if any)
   useEffect(() => {
     if (!props.initialTimetable) return;
     const selectedIndexes: ModIndexBasic[] = ModIndexBasicArraySchema.parse(
@@ -59,16 +58,6 @@ export default function TimetableApp(props: TimetableAppProps) {
     setModIndexesBasic(selectedIndexes);
   }, [setModIndexesBasic, props.initialTimetable]);
 
-  const handleGenerateSchedule = async () => {
-    const schedules = await generateSchedules(mods);
-    if (!schedules || schedules.length === 0) {
-      alert("No schedules found");
-      return;
-    }
-    schedules[0].forEach((schedule) => {
-      setCourseIndex(schedule.courseCode, schedule.courseName, schedule.index);
-    });
-  };
   const handleSelectMod = async (selected: ModInfoBasic) => {
     const newMod = await fetchMod(selected.course_code);
     setMods((prev) => [...prev, newMod]);
@@ -83,11 +72,7 @@ export default function TimetableApp(props: TimetableAppProps) {
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-center">
         {session.status === "authenticated" && <UserTimetableSelect />}
-        <div className="flex flex-col items-start justify-center w-full mt-4 gap-4">
-          <Button onClick={handleGenerateSchedule} className="mb-5">
-            Generate Schedules
-          </Button>
-        </div>
+          <GenerateSchedule mods={mods} />
         {/* <AiButton /> */}
         <ModSearchBar
           selectedStrings={selectedStrings}
