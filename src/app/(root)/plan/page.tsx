@@ -1,8 +1,9 @@
 import { auth } from "../../../../auth";
 import { timetable } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import TimetableContextWrapper from "@/components/TimetableContextWrapper";
+import { getTimetableById, getUserTimetables } from "@/actions/timetable";
+import { Suspense } from "react";
 
 export default async function Page({
   searchParams,
@@ -16,19 +17,18 @@ export default async function Page({
 
   if (timetableId) {
     if (!session || !session.user) redirect("/plan");
-    timetable = await prisma.timetable.findUnique({
-      where: {
-        id: parseInt(timetableId || ""),
-        userId: session.user.id,
-      },
-    });
+    else if (session.user.id) {
+      timetable = await getTimetableById(timetableId, session.user.id);
+    }
   }
-  if (session && session.user) {
-    userTimetables = await prisma.timetable.findMany({
-      where: {
-        userId: session.user.id,
-      },
-    });
-  }
-  return <TimetableContextWrapper initialTimetable={timetable} userTimetables={userTimetables} />;
+  if (session && session.user && session.user.id)
+    userTimetables = await getUserTimetables(session.user.id);
+  return (
+    <Suspense>
+      <TimetableContextWrapper
+        initialTimetable={timetable}
+        userTimetables={userTimetables}
+      />
+    </Suspense>
+  );
 }

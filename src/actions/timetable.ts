@@ -77,3 +77,33 @@ export async function editTimetable(
     throw new Error("Error editing timetable");
   }
 }
+export async function getUserTimetables(userId: string): Promise<timetable[]> {
+  try {
+    const timetables = await prisma.timetable.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+    return timetables;
+  } catch (error) {
+    console.error("Error fetching user timetables:", error);
+    throw new Error("Error fetching user timetables");
+  }
+}
+export async function getTimetableById(
+  timetableId: string,
+  userId: string
+): Promise<timetable | null> {
+  try {
+    const timetable = await prisma.timetable.findUnique({
+      where: {
+        id: parseInt(timetableId),
+        userId: userId,
+      },
+    });
+    return timetable;
+  } catch (error) {
+    console.error("Error fetching timetable by ID:", error);
+    throw new Error("Error fetching timetable by ID");
+  }
+}
