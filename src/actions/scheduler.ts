@@ -17,7 +17,6 @@ export const generateSchedules = async (selectedMods: IMod[]) => {
     return [];
   }
   if (checkLecturesClash(selectedMods)) {
-    console.log("Selected mods have clashing lectures");
     return [];
   }
 

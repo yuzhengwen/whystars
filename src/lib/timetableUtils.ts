@@ -140,10 +140,21 @@ export const getLessonTimeOverlaps = (
   return overlapTimes;
 };
 export const checkLessonsOverlap = (lessons: ILesson[]) => {
-  const times = generateTimeSlots("0830", "1930", "30");
-  const allTimes = lessons
-    .map((lesson) => getLessonTimeOverlaps(lesson, times))
-    .flat();
-  const uniqueTimes = new Set(allTimes);
-  return allTimes.length !== uniqueTimes.size;
+  // in the format {"MON": ["0830", "0900"]}
+  // this means that on MON, there are lessons at 0830 and 0900
+  const busyTimes :Record<string, string[]> = {};
+  lessons.forEach((lesson) => {
+    const { day } = parseLessonTiming(lesson);
+    if (!busyTimes[day]) busyTimes[day] = [];
+    const overlapTimes = getLessonTimeOverlaps(lesson, generateTimeSlots("0830", "1930", "30"));
+    busyTimes[day].push(...overlapTimes);
+  });
+  for (const day in busyTimes) {
+    const times = busyTimes[day];
+    const uniqueTimes = new Set(times);
+    if (times.length !== uniqueTimes.size) {
+      return true; // There are overlaps
+    }
+  }
+  return false; // No overlaps found
 };
