@@ -9,17 +9,10 @@ import {
   ArrowRight,
   ArrowRightToLine,
 } from "lucide-react";
-import { z } from "zod";
+import { ModBasicInfoSchema } from "@/types/modtypes";
 
 const PAGE_SIZE = 15; // You can tweak this
 
-const DataSchema = z.array(
-  z.object({
-    course_code: z.string(),
-    course_name: z.string(),
-    aus: z.number(),
-  })
-);
 const page = async ({
   searchParams,
 }: {
@@ -30,10 +23,10 @@ const page = async ({
 
   const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
     cache: "force-cache",
-    next: { revalidate: 7200 }, // 2 hours
+    next: { revalidate: 28800 }, // 8 hours
   });
   const rawData = await res.json();
-  const data = DataSchema.parse(rawData);
+  const data = ModBasicInfoSchema.parse(rawData);
 
   // Filter mods based on the query (case insensitive)
   const filtered = data.filter(

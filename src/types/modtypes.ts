@@ -1,6 +1,13 @@
 import { IIndex, ILesson, IMod } from "@/lib/models/modModel";
 import { z } from "zod";
 
+export const ModBasicInfoSchema = z.array(
+  z.object({
+    course_code: z.string(),
+    course_name: z.string(),
+    aus: z.number(),
+  })
+);
 export type ModInfoBasic = {
   course_code: string;
   course_name: string;
