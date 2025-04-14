@@ -1,6 +1,9 @@
 "use server";
 
-import { ILesson, IMod } from "@/lib/models/modModel";
+import { DayConfig } from "@/components/ConstraintsInput";
+import { parseLessonTiming } from "@/lib/dates";
+import { TimeRange } from "@/lib/daytime";
+import { IIndex, ILesson, IMod } from "@/lib/models/modModel";
 import { checkLessonsOverlap } from "@/lib/timetableUtils";
 import {
   createModIndex,
@@ -10,15 +13,42 @@ import {
 import { TimetableGrid } from "@/types/TimetableGrid";
 
 const maxSchedules = 100;
-export const generateSchedules = async (selectedMods: IMod[]) => {
+export const generateSchedules = async (
+  selectedMods: IMod[],
+  dayConfigs?: DayConfig[]
+): Promise<{ generatedSchedules: ModIndexBasic[][]; error: string }> => {
   // pre checks
   if (selectedMods.length === 0) {
-    console.log("No mods selected");
-    return [];
+    return { generatedSchedules: [], error: "No mods selected" };
   }
   if (checkLecturesClash(selectedMods)) {
-    return [];
+    return { generatedSchedules: [], error: "Lectures clash" };
   }
+
+  let filteredMods = selectedMods;
+  if (dayConfigs && dayConfigs.length > 0) {
+    const { valid, whiteList } = filterConstraints(
+      selectedMods,
+      dayConfigs as DayConfig[]
+    );
+    if (!valid || whiteList.size === 0) {
+      return {
+        generatedSchedules: [],
+        error: "Constraints cannot be satisfied",
+      };
+    }
+    filteredMods = selectedMods.map((mod) => {
+      const indexes = whiteList.get(mod.course_code);
+      if (indexes) {
+        return {
+          ...mod,
+          indexes: mod.indexes.filter((index) => indexes.has(index.index)),
+        };
+      }
+      return mod;
+    });
+  }
+  console.log("Filtered mods:", filteredMods);
 
   const allSchedules: ModIndexBasic[][] = [];
 
@@ -31,7 +61,7 @@ export const generateSchedules = async (selectedMods: IMod[]) => {
     if (allSchedules.length >= maxSchedules) {
       return;
     }
-    if (i === selectedMods.length) {
+    if (i === filteredMods.length) {
       // all mods have been added to the schedule
       console.log("All mods added to schedule");
       console.log("------------------------------");
@@ -41,7 +71,7 @@ export const generateSchedules = async (selectedMods: IMod[]) => {
       return;
     }
 
-    const currentMod = selectedMods[i];
+    const currentMod = filteredMods[i];
     console.log(`Trying to add ${currentMod.course_code}`);
     currentMod.indexes.forEach((index) => {
       // check if this index can be added to the current schedule
@@ -71,7 +101,7 @@ export const generateSchedules = async (selectedMods: IMod[]) => {
       );
     });
   });
-  return allSchedules;
+  return { generatedSchedules: allSchedules, error: "" };
 };
 
 const checkLecturesClash = (selectedMods: IMod[]) => {
@@ -83,4 +113,44 @@ const checkLecturesClash = (selectedMods: IMod[]) => {
     })
     .filter((lesson): lesson is ILesson => lesson !== undefined);
   return checkLessonsOverlap(lectures);
+};
+
+const filterConstraints = (
+  selectedMods: IMod[],
+  dayConfigs: DayConfig[]
+): { valid: boolean; whiteList: Map<string, Set<string>> } => {
+  const whiteList = new Map<string, Set<string>>();
+  function whiteListIndex(mod: IMod, index: string) {
+    if (!whiteList.has(mod.course_code)) {
+      whiteList.set(mod.course_code, new Set<string>());
+    }
+    whiteList.get(mod.course_code)?.add(index);
+  }
+  // index is valid if all lessons do not overlap with the config time range
+  function isIndexValid(index: IIndex) {
+    return index.lessons.every((lesson) => {
+      const { day, timeRange: lessonTimeRange } = parseLessonTiming(lesson);
+      const config = dayConfigs.find((c) => c.day === day);
+      if (config) {
+        if (config.avoidDay) return false; // any lesson on this day is invalid
+        const configTimeRange = new TimeRange(config.startTime, config.endTime);
+        return !configTimeRange.isOverlap(lessonTimeRange); // true if no overlap
+      }
+      return true; // if no config for that day, valid
+    });
+  }
+
+  // remove all indexes with lessons that are not in the constraints
+  for (const mod of selectedMods) {
+    mod.indexes.forEach((index) => {
+      if (isIndexValid(index)) {
+        whiteListIndex(mod, index.index);
+      }
+    });
+    // if any mod has no valid indexes, return invalid
+    if (!whiteList.has(mod.course_code)) {
+      return { valid: false, whiteList: new Map() };
+    }
+  }
+  return { valid: true, whiteList };
 };

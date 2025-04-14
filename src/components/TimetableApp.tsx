@@ -17,6 +17,7 @@ import UserTimetableSelect from "./UserTimetableSelect";
 import GenerateSchedule from "./GenerateSchedule";
 import { useInitialTimetable } from "@/context/TimetableContexts";
 import { TimetableGrid } from "@/types/TimetableGrid";
+import DownloadButton from "./DownloadButton";
 
 export default function TimetableApp() {
   const session = useSession();
@@ -100,6 +101,7 @@ export default function TimetableApp() {
   return (
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-start">
+        <DownloadButton />
         {session.status === "authenticated" && <UserTimetableSelect />}
         <GenerateSchedule mods={mods} />
         {/* <AiButton /> */}

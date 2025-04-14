@@ -1,14 +1,8 @@
 import { ILesson } from "./models/modModel";
+import { TimeRange } from "./daytime";
 
-type TimeRange = {
-  startTime: string;
-  endTime: string;
-  startMinutes: number;
-  endMinutes: number;
-  duration: number;
-};
 // Function to convert time like "1130" to minutes since midnight
-function parseTimeToMinutes(timeString: string) {
+export function parseTimeToMinutes(timeString: string) {
   const hours = parseInt(timeString.slice(0, 2), 10);
   const minutes = parseInt(timeString.slice(2), 10);
   return hours * 60 + minutes;
@@ -20,13 +14,7 @@ export function parseLessonTiming(lesson: ILesson): {
 } {
   const day = lesson.day.trim().toUpperCase();
   const [startTimeString, endTimeString] = lesson.time.split("-");
-  const timeRange = {
-    startTime: startTimeString.trim(),
-    endTime: endTimeString.trim(),
-    startMinutes: parseTimeToMinutes(startTimeString),
-    endMinutes: parseTimeToMinutes(endTimeString),
-    duration: 0,
-  };
+  const timeRange = new TimeRange(startTimeString.trim(), endTimeString.trim());
   timeRange.duration = timeRange.endMinutes - timeRange.startMinutes;
   return { day, timeRange };
 }

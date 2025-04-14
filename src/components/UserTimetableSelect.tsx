@@ -16,7 +16,8 @@ import { useRouter } from "next/navigation";
 
 const UserTimetableSelect = () => {
   // currentTimetable represents global state
-  const {setCurrentTimetable, modIndexesBasic} = useTimetableStore();
+  const { setCurrentTimetable, modIndexesBasic, currentTimetable } =
+    useTimetableStore();
   const router = useRouter();
   const [timetables, setTimetables] = useState<timetable[]>([]);
   // selectedTimetable represents local state in selectbox
@@ -24,10 +25,14 @@ const UserTimetableSelect = () => {
     null
   );
   const [loading, setLoading] = useState(false);
+  // sync timetable list with userTimetables from cloud
   const userTimetables = useUserTimetables();
   useEffect(() => {
     setTimetables(userTimetables);
   }, [userTimetables]);
+  useEffect(() => {
+    setSelectedTimetable(currentTimetable);
+  }, [currentTimetable]);
   return (
     <>
       <div className="flex flex-col items-start justify-start w-full mt-4 gap-4">
@@ -64,6 +69,7 @@ const UserTimetableSelect = () => {
               onClick={() => {
                 router.replace(`/plan/?timetableId=${selectedTimetable.id}`);
               }}
+              disabled={selectedTimetable.name === currentTimetable?.name}
               variant="outline"
             >
               Open
