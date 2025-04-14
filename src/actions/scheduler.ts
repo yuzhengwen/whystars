@@ -101,6 +101,8 @@ export const generateSchedules = async (
       );
     });
   });
+  if (allSchedules.length ===0)
+    return { generatedSchedules: [], error: "No schedules could be generated" };
   return { generatedSchedules: allSchedules, error: "" };
 };
 
