@@ -110,11 +110,11 @@ export default function TimetableApp() {
           onSelect={handleSelectMod}
         />
         <div>
-          Timetable:{" "}
+          Timetable Shown:{" "}
           {valid ? (
             <span className="text-green-500">Valid</span>
           ) : (
-            <span className="text-red-600">Invalid</span>
+            <span className="text-red-600">Contains Clashes</span>
           )}
           {clashingModIndexes.length > 0 && (
             <div className="text-red-600">

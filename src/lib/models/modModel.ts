@@ -1,4 +1,3 @@
-
 export interface ILesson {
   lesson_type: string;
   group: string;
@@ -13,7 +12,7 @@ export interface IIndex {
   lessons: ILesson[];
 }
 
-export interface IMod extends Document {
+export interface IMod {
   course_code: string;
   course_name: string;
   academic_units: number;

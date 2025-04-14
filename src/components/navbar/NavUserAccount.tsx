@@ -7,11 +7,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
-import UserAvatar from "./UserAvatar";
+import UserAvatar from "../UserAvatar";
 
 type Props = {
   user: Pick<User, "name" | "image" | "email">;

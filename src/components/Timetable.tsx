@@ -1,6 +1,7 @@
 import { parseLessonTiming } from "@/lib/dates";
 import { ILesson } from "@/lib/models/modModel";
 import React from "react";
+import { days, times } from "@/lib/constants";
 
 // type for chosen index of a mod
 type ModIndex = {
@@ -20,44 +21,18 @@ type ModLesson = {
 function Timetable({ modIndexes }: { modIndexes: ModIndex[] }) {
   console.log(`Rendering timetable with ${modIndexes.length} modules`);
   // Helper function to create a time grid
-  const createTimeGrid = () => {
-    const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT"];
-    const generateTimeSlots = (
-      start: string,
-      end: string,
-      interval: string
-    ) => {
-      const startTime = parseInt(start);
-      const endTime = parseInt(end);
-      const intervalMinutes = parseInt(interval);
-      const slots = [];
-      let currentMinutes = Math.floor(startTime / 100) * 60 + (startTime % 100);
-      const endMinutes = Math.floor(endTime / 100) * 60 + (endTime % 100);
-
-      while (currentMinutes <= endMinutes) {
-        const hours = Math.floor(currentMinutes / 60);
-        const minutes = currentMinutes % 60;
-        const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
-          .toString()
-          .padStart(2, "0")}`;
-        slots.push(formattedTime);
-        currentMinutes += intervalMinutes;
-      }
-      return slots;
-    };
-    const times = generateTimeSlots("0830", "2300", "30"); // 30-minute intervals from 0830 to 2300
-
+  function createTimeGrid(): Record<string, Record<string, ModLesson[]>> {
     const grid: Record<string, Record<string, ModLesson[]>> = {};
-    days.forEach((day) => {
+    days.forEach((day: string) => {
       grid[day] = {};
-      times.forEach((time) => {
+      times.forEach((time: string) => {
         grid[day][time] = [];
       });
     });
-    return { days, times, grid };
-  };
+    return grid;
+  }
 
-  const { days, times, grid } = createTimeGrid();
+  const grid = createTimeGrid();
 
   // Populate the grid with course data
   modIndexes.forEach((mod) => {

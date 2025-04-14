@@ -1,5 +1,5 @@
 import { SessionProvider } from "next-auth/react";
-import NavBar from "../../components/NavBar";
+import NavBar from "../../components/navbar/NavBar";
 import Providers from "@/components/Providers";
 
 export default function Layout({

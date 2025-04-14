@@ -1,7 +1,18 @@
-import path from "path";
-import fs from "fs";
 import { IMod } from "@/lib/models/modModel";
 import AddModButton from "@/components/AddModButton";
+import { ModBasicInfoSchema } from "@/types/modtypes";
+
+export async function generateStaticParams() {
+  const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
+    cache: "force-cache",
+    next: { revalidate: 28800 }, // 8 hours
+  });
+  const data = await res.json();
+  const parsedData = ModBasicInfoSchema.parse(data);
+  return parsedData.map((mod) => ({
+    slug: mod.course_code,
+  }));
+}
 
 export default async function Page({
   params,
@@ -9,20 +20,14 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  let data: IMod = {} as IMod;
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      "data",
-      "mods",
-      `${slug}.json`
-    );
-    const fileContents = fs.readFileSync(filePath, "utf-8");
-    data = JSON.parse(fileContents);
-  } catch (error) {
-    console.error("Error fetching data:", error);
+  const res = await fetch(`${process.env.DATA_BASE_URL}/mods/${slug}.json`, {
+    cache: "force-cache",
+    next: { revalidate: 28800 }, // 8 hours
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
   }
+  const data: IMod = await res.json();
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
