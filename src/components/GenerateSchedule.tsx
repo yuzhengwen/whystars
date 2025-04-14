@@ -45,6 +45,7 @@ const GenerateSchedule = ({ mods }: Props) => {
     );
     setLoading(false);
     if (!generatedSchedules || generatedSchedules.length === 0) {
+      setSchedules([]); //clear out schedules
       alert(error);
       return;
     }
