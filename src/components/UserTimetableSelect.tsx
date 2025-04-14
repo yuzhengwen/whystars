@@ -53,7 +53,7 @@ const UserTimetableSelect = () => {
               setSelectedTimetable(newTimetable);
               setCurrentTimetable(newTimetable);
               setLoading(false);
-              router.push(`/plan/?timetableId=${newTimetable.id}`);
+              router.replace(`/plan/?timetableId=${newTimetable.id}`);
             }}
           />
           {loading && <Spinner />}
@@ -62,7 +62,7 @@ const UserTimetableSelect = () => {
           <div className="flex items-center gap-1">
             <Button
               onClick={() => {
-                router.push(`/plan/?timetableId=${selectedTimetable.id}`);
+                router.replace(`/plan/?timetableId=${selectedTimetable.id}`);
               }}
               variant="outline"
             >
@@ -100,7 +100,7 @@ const UserTimetableSelect = () => {
                 setLoading(false);
                 setSelectedTimetable(null);
                 setCurrentTimetable(null);
-                router.push("/plan");
+                router.replace("/plan");
               }}
             >
               <Trash2 />
