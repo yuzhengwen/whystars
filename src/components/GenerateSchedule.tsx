@@ -27,14 +27,13 @@ const GenerateSchedule = ({ mods }: Props) => {
   const handleGenerateSchedule = async () => {
     setLoading(true);
     const generatedSchedules = await generateSchedules(mods);
+    setLoading(false);
     if (!generatedSchedules || generatedSchedules.length === 0) {
-      setLoading(false);
       alert("No schedules found");
       return;
     }
     setSchedules(generatedSchedules);
     setIndexHelper(0);
-    setLoading(false);
   };
   return (
     <div className="flex flex-col items-start justify-center w-full mt-4 gap-2 mb-4">
