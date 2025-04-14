@@ -6,6 +6,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ModIndexBasic } from "@/types/modtypes";
 import { Spinner } from "./ui/spinner";
+import ConstraintsInput from "./ConstraintsInput";
+import { useConstraintsStore } from "@/stores/useConstraintsStore";
 
 type Props = {
   mods: IMod[];
@@ -18,6 +20,7 @@ const GenerateSchedule = ({ mods }: Props) => {
   const [schedules, setSchedules] = useState<ModIndexBasic[][]>([]);
   const [index, setIndex] = useState<number>(0);
   const [indexInput, setIndexInput] = useState<string>("");
+  const { dayConfigs } = useConstraintsStore();
 
   // without schedules as dependency it can use old value due to function closure
   const setIndexHelper = useCallback(
@@ -36,10 +39,13 @@ const GenerateSchedule = ({ mods }: Props) => {
   );
   const handleGenerateSchedule = async () => {
     setLoading(true);
-    const generatedSchedules = await generateSchedules(mods);
+    const { generatedSchedules, error } = await generateSchedules(
+      mods,
+      dayConfigs
+    );
     setLoading(false);
     if (!generatedSchedules || generatedSchedules.length === 0) {
-      alert("No schedules found");
+      alert(error);
       return;
     }
     setSchedules(generatedSchedules);
@@ -55,12 +61,20 @@ const GenerateSchedule = ({ mods }: Props) => {
   }, [currentTimetable, modIndexesBasic.length]);
   return (
     <div className="flex flex-col items-start justify-center w-full mt-4 gap-2 mb-4">
-      <div className="flex gap-2">
-        <Button onClick={handleGenerateSchedule} className="">
-          Generate Schedules
-        </Button>
-        {loading && <Spinner />}
-      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleGenerateSchedule();
+        }}
+      >
+        <div className="flex gap-2">
+          <Button type="submit" className="">
+            Generate Schedules
+          </Button>
+          {loading && <Spinner />}
+        </div>
+        <ConstraintsInput />
+      </form>
       {schedules.length > 0 && (
         <div className="flex flex-col gap-2">
           <div>Valid Schedules Found: {schedules.length}</div>
