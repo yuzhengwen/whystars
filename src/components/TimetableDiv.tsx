@@ -110,7 +110,10 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
   };
   // not sure why overflow-y-hidden works without cutting off anything but ok
   return (
-    <div className="flex w-full overflow-x-auto overflow-y-hidden">
+    <div
+      className="flex w-full overflow-x-auto overflow-y-hidden"
+      id="timetable-app"
+    >
       {/* Time slots on the left */}
       <div
         className={`relative flex flex-col w-20 text-right text-sm mt-18 pr-1`}
