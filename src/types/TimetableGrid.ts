@@ -96,7 +96,10 @@ export class TimetableGrid {
     for (const day of this.days) {
       for (const time of this.times) {
         const lessons = this.grid[day][time];
-        if (lessons.length > 1) {
+        if (
+          lessons.length > 1 &&
+          lessons.some((lesson) => lesson.index !== lessons[0].index) // ensure at least 2 different lessons (if all lessons are from same index, no clash)
+        ) {
           lessons.forEach((lesson) => {
             clashingModIndexes.set(lesson.courseCode, lesson);
           });

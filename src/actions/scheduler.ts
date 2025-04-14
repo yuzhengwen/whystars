@@ -37,6 +37,7 @@ export const generateSchedules = async (
         error: "Constraints cannot be satisfied",
       };
     }
+    // update filteredMods with the whiteList
     filteredMods = selectedMods.map((mod) => {
       const indexes = whiteList.get(mod.course_code);
       if (indexes) {
@@ -48,7 +49,6 @@ export const generateSchedules = async (
       return mod;
     });
   }
-  console.log("Filtered mods:", filteredMods);
 
   const allSchedules: ModIndexBasic[][] = [];
 
