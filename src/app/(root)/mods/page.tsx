@@ -2,8 +2,6 @@ import SearchForm from "@/components/SearchForm";
 import React from "react";
 import Link from "next/link";
 import { ModInfoBasic } from "@/types/modtypes";
-import fs from "fs";
-import path from "path";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -11,9 +9,17 @@ import {
   ArrowRight,
   ArrowRightToLine,
 } from "lucide-react";
+import { z } from "zod";
 
 const PAGE_SIZE = 15; // You can tweak this
 
+const DataSchema = z.array(
+  z.object({
+    course_code: z.string(),
+    course_name: z.string(),
+    aus: z.number(),
+  })
+);
 const page = async ({
   searchParams,
 }: {
@@ -22,20 +28,12 @@ const page = async ({
   const { query = "", page = "1" } = await searchParams;
   const currentPage = Math.max(1, parseInt(page));
 
-  let data: ModInfoBasic[] = [];
-
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      "data",
-      "module_list.json"
-    );
-    const fileContents = fs.readFileSync(filePath, "utf-8");
-    data = JSON.parse(fileContents);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
+  const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
+    cache: "force-cache",
+    next: { revalidate: 7200 }, // 2 hours
+  });
+  const rawData = await res.json();
+  const data = DataSchema.parse(rawData);
 
   // Filter mods based on the query (case insensitive)
   const filtered = data.filter(
