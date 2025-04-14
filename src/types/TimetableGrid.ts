@@ -1,7 +1,12 @@
 import { parseLessonTiming } from "@/lib/dates";
 import { IIndex } from "@/lib/models/modModel";
 import { createTimeGrid, getLessonTimeOverlaps } from "@/lib/timetableUtils";
-import { ModLesson, ModIndex, createModLesson } from "./modtypes";
+import {
+  ModLesson,
+  ModIndex,
+  createModLesson,
+  ModIndexBasic,
+} from "./modtypes";
 
 export class TimetableGrid {
   grid: Record<string, Record<string, ModLesson[]>>;
@@ -30,7 +35,9 @@ export class TimetableGrid {
     console.log(`Added index ${modIndex.index}`);
   }
   removeIndex = (modIndex: ModIndex) => {
-    this.modIndexes = this.modIndexes.filter((index) => index.index !== modIndex.index);
+    this.modIndexes = this.modIndexes.filter(
+      (index) => index.index !== modIndex.index
+    );
     const { lessons } = modIndex;
     lessons.forEach((lesson) => {
       const overlapTimes = getLessonTimeOverlaps(lesson, this.times);
@@ -43,6 +50,11 @@ export class TimetableGrid {
     });
     console.log(`Removed index ${modIndex.index}`);
   };
+  /**
+   * @description: Method: Gets all the time slots needed by new index, check against existing grid for clashes
+   * @param index - The index to check if it can be added to the schedule
+   * @returns true if the index can be added to the schedule, false otherwise
+   */
   canAddToSchedule = (index: IIndex) => {
     if (this.modIndexes.length === 0) return true; // no mods in the grid, so we can add anything
     if (this.modIndexes.find((i) => i.index === index.index)) return false; // already in the grid
@@ -73,5 +85,27 @@ export class TimetableGrid {
     }
     this.modIndexes = [];
     return this;
+  };
+  /**
+   * @description: Check if the grid is valid (no clashes) and return the clashing mod indexes
+   * @returns { isValid: boolean, clashingModIndexes: Map<string, ModIndexBasic> }
+   */
+  isValid = () => {
+    // use map to avoid duplicates (without strict equality check of Set)
+    const clashingModIndexes = new Map<string, ModIndexBasic>();
+    for (const day of this.days) {
+      for (const time of this.times) {
+        const lessons = this.grid[day][time];
+        if (lessons.length > 1) {
+          lessons.forEach((lesson) => {
+            clashingModIndexes.set(lesson.courseCode, lesson);
+          });
+        }
+      }
+    }
+    return {
+      isValid: clashingModIndexes.size === 0,
+      clashingModIndexes,
+    };
   };
 }
