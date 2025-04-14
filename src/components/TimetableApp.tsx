@@ -8,6 +8,7 @@ import {
   ModInfoBasic,
   ModIndexBasic,
   ModIndexBasicArraySchema,
+  createModIndexWithString,
 } from "@/types/modtypes";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod, fetchMods } from "@/actions/getMods";
@@ -15,6 +16,7 @@ import { useSession } from "next-auth/react";
 import UserTimetableSelect from "./UserTimetableSelect";
 import GenerateSchedule from "./GenerateSchedule";
 import { useInitialTimetable } from "@/context/TimetableContexts";
+import { TimetableGrid } from "@/types/TimetableGrid";
 
 export default function TimetableApp() {
   const session = useSession();
@@ -65,6 +67,30 @@ export default function TimetableApp() {
     );
   };
 
+  // show validity of timetable
+  const [valid, setValid] = useState(true);
+  const [timetableGrid, setTimetableGrid] = useState<TimetableGrid>(
+    new TimetableGrid()
+  );
+  const [clashingModIndexes, setClashingModIndexes] = useState<ModIndexBasic[]>(
+    []
+  );
+  useEffect(() => {
+    const newGrid = new TimetableGrid();
+    mods.forEach((mod) => {
+      newGrid.addIndex(
+        createModIndexWithString(mod, selectedIndexes[mod.course_code])
+      );
+      setTimetableGrid(newGrid);
+    });
+  }, [mods, selectedIndexes]);
+  useEffect(() => {
+    console.log("Timetable grid updated", timetableGrid);
+    const { isValid, clashingModIndexes } = timetableGrid.isValid();
+    setClashingModIndexes(Array.from(clashingModIndexes.values()));
+    setValid(isValid);
+  }, [timetableGrid]);
+
   return (
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-start">
@@ -75,6 +101,27 @@ export default function TimetableApp() {
           selectedStrings={selectedStrings}
           onSelect={handleSelectMod}
         />
+        <div>
+          Timetable:{" "}
+          {valid ? (
+            <span className="text-green-500">Valid</span>
+          ) : (
+            <span className="text-red-600">Invalid</span>
+          )}
+          {clashingModIndexes.length > 0 && (
+            <div className="text-red-600">
+              {clashingModIndexes.map((modIndex) => (
+                <div key={modIndex.index}>
+                  {
+                    mods.find((m) => m.course_code === modIndex.courseCode)
+                      ?.course_name
+                  }{" "}
+                  {modIndex.index}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         {mods.map((mod: IMod) => (
           <ModListItem
             key={mod.course_code}
