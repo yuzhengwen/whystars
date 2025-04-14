@@ -5,6 +5,10 @@ import { ModIndexBasic } from "@/types/modtypes";
 import { Prisma, timetable } from "@prisma/client";
 
 export async function getAllUsers() {
+  const session = await auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
   const users = await prisma.user.findMany();
   return users;
 }
@@ -33,12 +37,14 @@ export async function addTimetable(
     throw new Error("Error adding timetable");
   }
 }
-export async function deleteTimetable(timetableId: number) {
+export async function deleteTimetable(userId: string, timetableId: number) {
   const session = await auth();
-  if (!session) {
+  if (!session || !session.user) {
     throw new Error("User not authenticated");
   }
-  const userId = session?.user?.id as string;
+  if (session.user.id !== userId) {
+    throw new Error("User not authorized to access this timetable");
+  }
   try {
     // Delete the timetable entry from the database
     await prisma.timetable.delete({
@@ -53,14 +59,17 @@ export async function deleteTimetable(timetableId: number) {
   }
 }
 export async function editTimetable(
+  userId: string,
   timetableId: number,
   modIndexes: ModIndexBasic[]
 ) {
   const session = await auth();
-  if (!session) {
+  if (!session || !session.user) {
     throw new Error("User not authenticated");
   }
-  const userId = session?.user?.id as string;
+  if (session.user.id !== userId) {
+    throw new Error("User not authorized to access this timetable");
+  }
   try {
     // Update the timetable entry in the database
     await prisma.timetable.update({
@@ -78,6 +87,13 @@ export async function editTimetable(
   }
 }
 export async function getUserTimetables(userId: string): Promise<timetable[]> {
+  const session = await auth();
+  if (!session || !session.user) {
+    throw new Error("User not authenticated");
+  }
+  if (session.user.id !== userId) {
+    throw new Error("User not authorized to access this timetable");
+  }
   try {
     const timetables = await prisma.timetable.findMany({
       where: {
@@ -94,6 +110,10 @@ export async function getTimetableById(
   timetableId: string,
   userId: string
 ): Promise<timetable | null> {
+  const session = await auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
   try {
     const timetable = await prisma.timetable.findUnique({
       where: {

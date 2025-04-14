@@ -14,8 +14,10 @@ import { useTimetableStore } from "@/stores/useTimetableStore";
 import { useUserTimetables } from "@/context/TimetableContexts";
 import { Spinner } from "./ui/spinner";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const UserTimetableSelect = () => {
+  const session = useSession();
   const router = useRouter();
   const [timetables, setTimetables] = useState<timetable[]>([]);
   const modIndexesBasic = useTimetableStore((state) => state.modIndexesBasic);
@@ -23,22 +25,13 @@ const UserTimetableSelect = () => {
     null
   );
   const [loading, setLoading] = useState(false);
-  /*
-  const fetchTimetables = useCallback(async () => {
-    const response = await fetch("/api/timetables");
-    const data = await response.json();
-    setTimetables(data);
-  }, []);
-  useEffect(() => {
-    fetchTimetables();
-  }, [fetchTimetables]);*/
   const userTimetables = useUserTimetables();
   useEffect(() => {
     setTimetables(userTimetables);
   }, [userTimetables]);
   return (
     <>
-      {timetables.length > 0 && (
+      {session.status == "authenticated" && (
         <div className="flex flex-col items-start justify-start w-full mt-4 gap-4">
           <div className="flex flex-row gap-2">
             <ComboBoxPro
@@ -73,7 +66,14 @@ const UserTimetableSelect = () => {
               </Link>
               <Button
                 onClick={async () => {
-                  await editTimetable(selectedTimetable.id, modIndexesBasic);
+                  if (!session.data?.user?.id) {
+                    throw new Error("User ID is undefined");
+                  }
+                  await editTimetable(
+                    session.data.user.id,
+                    selectedTimetable.id,
+                    modIndexesBasic
+                  );
                 }}
               >
                 <Save />
@@ -82,7 +82,13 @@ const UserTimetableSelect = () => {
                 variant="destructive"
                 onClick={async () => {
                   setLoading(true);
-                  await deleteTimetable(selectedTimetable.id);
+                  if (!session.data?.user?.id) {
+                    throw new Error("User ID is undefined");
+                  }
+                  await deleteTimetable(
+                    session.data?.user?.id,
+                    selectedTimetable.id
+                  );
                   setTimetables((prev) =>
                     prev.filter(
                       (timetable) => timetable.id !== selectedTimetable.id
