@@ -19,6 +19,7 @@ export default async function Page({
     if (!session || !session.user) redirect("/plan");
     else if (session.user.id) {
       timetable = await getTimetableById(timetableId);
+      if (!timetable) redirect("/plan"); // if timetable not found, redirect to /plan
     }
   }
   if (session && session.user && session.user.id)

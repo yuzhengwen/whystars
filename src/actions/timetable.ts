@@ -67,7 +67,7 @@ export async function editTimetable(
   const userId = session?.user?.id as string;
   try {
     // Update the timetable entry in the database
-    await prisma.timetable.update({
+    const updated =await prisma.timetable.update({
       where: {
         id: timetableId,
         userId: userId,
@@ -76,6 +76,7 @@ export async function editTimetable(
         modindexes: modIndexes as unknown as Prisma.InputJsonArray, // somehow it works
       },
     });
+    return updated;
   } catch (error) {
     console.error("Error editing timetable:", error);
     throw new Error("Error editing timetable");

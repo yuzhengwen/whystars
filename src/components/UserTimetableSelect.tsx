@@ -15,9 +15,11 @@ import { Spinner } from "./ui/spinner";
 import { useRouter } from "next/navigation";
 
 const UserTimetableSelect = () => {
+  // currentTimetable represents global state
+  const {setCurrentTimetable, modIndexesBasic} = useTimetableStore();
   const router = useRouter();
   const [timetables, setTimetables] = useState<timetable[]>([]);
-  const modIndexesBasic = useTimetableStore((state) => state.modIndexesBasic);
+  // selectedTimetable represents local state in selectbox
   const [selectedTimetable, setSelectedTimetable] = useState<timetable | null>(
     null
   );
@@ -49,6 +51,7 @@ const UserTimetableSelect = () => {
               const newTimetable = await addTimetable(value, modIndexesBasic);
               setTimetables((prev) => [...prev, newTimetable]);
               setSelectedTimetable(newTimetable);
+              setCurrentTimetable(newTimetable);
               setLoading(false);
               router.push(`/plan/?timetableId=${newTimetable.id}`);
             }}
@@ -67,7 +70,19 @@ const UserTimetableSelect = () => {
             </Button>
             <Button
               onClick={async () => {
-                await editTimetable(selectedTimetable.id, modIndexesBasic);
+                setLoading(true);
+                const updated = await editTimetable(
+                  selectedTimetable.id,
+                  modIndexesBasic
+                );
+                setTimetables((prev) =>
+                  prev.map((timetable) =>
+                    timetable.id === selectedTimetable.id ? updated : timetable
+                  )
+                );
+                setSelectedTimetable(updated);
+                setCurrentTimetable(updated);
+                setLoading(false);
               }}
             >
               <Save />
@@ -82,8 +97,10 @@ const UserTimetableSelect = () => {
                     (timetable) => timetable.id !== selectedTimetable.id
                   )
                 );
-                setSelectedTimetable(null);
                 setLoading(false);
+                setSelectedTimetable(null);
+                setCurrentTimetable(null);
+                router.push("/plan");
               }}
             >
               <Trash2 />
