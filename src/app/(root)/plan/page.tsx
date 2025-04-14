@@ -18,11 +18,11 @@ export default async function Page({
   if (timetableId) {
     if (!session || !session.user) redirect("/plan");
     else if (session.user.id) {
-      timetable = await getTimetableById(timetableId, session.user.id);
+      timetable = await getTimetableById(timetableId);
     }
   }
   if (session && session.user && session.user.id)
-    userTimetables = await getUserTimetables(session.user.id);
+    userTimetables = await getUserTimetables();
   return (
     <Suspense>
       <TimetableContextWrapper
