@@ -9,7 +9,7 @@ import {
 } from "@/types/modtypes";
 import { TimetableGrid } from "@/types/TimetableGrid";
 
-const maxSchedules = 10;
+const maxSchedules = 100;
 export const generateSchedules = async (selectedMods: IMod[]) => {
   // pre checks
   if (selectedMods.length === 0) {
