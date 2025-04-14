@@ -23,6 +23,7 @@ export default async function Page({
   }
   if (session && session.user && session.user.id)
     userTimetables = await getUserTimetables();
+
   return (
     <Suspense>
       <TimetableContextWrapper

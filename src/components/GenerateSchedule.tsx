@@ -2,7 +2,7 @@
 import { generateSchedules } from "@/actions/scheduler";
 import { IMod } from "@/lib/models/modModel";
 import { useTimetableStore } from "@/stores/useTimetableStore";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ModIndexBasic } from "@/types/modtypes";
 import { Spinner } from "./ui/spinner";
@@ -13,17 +13,27 @@ type Props = {
 
 const GenerateSchedule = ({ mods }: Props) => {
   const [loading, setLoading] = useState(false);
-  const { setCourseIndex } = useTimetableStore();
+  const { setCourseIndex, currentTimetable, modIndexesBasic } =
+    useTimetableStore();
   const [schedules, setSchedules] = useState<ModIndexBasic[][]>([]);
   const [index, setIndex] = useState<number>(0);
   const [indexInput, setIndexInput] = useState<string>("");
-  const setIndexHelper = (index: number) => {
-    setIndex(index);
-    setIndexInput((index + 1).toString());
-    schedules[index].forEach((schedule) => {
-      setCourseIndex(schedule.courseCode, schedule.courseName, schedule.index);
-    });
-  };
+
+  // without schedules as dependency it can use old value due to function closure
+  const setIndexHelper = useCallback(
+    (index: number) => {
+      setIndex(index);
+      setIndexInput((index + 1).toString());
+      schedules[index].forEach((schedule) => {
+        setCourseIndex(
+          schedule.courseCode,
+          schedule.courseName,
+          schedule.index
+        );
+      });
+    },
+    [schedules, setCourseIndex]
+  );
   const handleGenerateSchedule = async () => {
     setLoading(true);
     const generatedSchedules = await generateSchedules(mods);
@@ -33,8 +43,16 @@ const GenerateSchedule = ({ mods }: Props) => {
       return;
     }
     setSchedules(generatedSchedules);
-    setIndexHelper(0);
   };
+  useEffect(() => {
+    if (schedules.length > 0) {
+      setIndexHelper(0);
+    }
+  }, [schedules, setIndexHelper]);
+  // when we open another timetable or add/remove mods, reset the schedules
+  useEffect(() => {
+    setSchedules([]);
+  }, [currentTimetable, modIndexesBasic.length]);
   return (
     <div className="flex flex-col items-start justify-center w-full mt-4 gap-2 mb-4">
       <div className="flex gap-2">

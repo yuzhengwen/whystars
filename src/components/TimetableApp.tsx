@@ -20,8 +20,13 @@ import { TimetableGrid } from "@/types/TimetableGrid";
 
 export default function TimetableApp() {
   const session = useSession();
-  const { modIndexesBasic, setModIndexesBasic, setCourseIndex, removeCourse } =
-    useTimetableStore();
+  const {
+    modIndexesBasic,
+    setModIndexesBasic,
+    setCourseIndex,
+    removeCourse,
+    setCurrentTimetable,
+  } = useTimetableStore();
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
   // mods list with full details automatically updated
   // this has some delay, which means if any component is relying on this, there will be some delay
@@ -51,11 +56,12 @@ export default function TimetableApp() {
   const initialTimetable = useInitialTimetable();
   useEffect(() => {
     if (!initialTimetable) return;
+    setCurrentTimetable(initialTimetable);
     const selectedIndexes: ModIndexBasic[] = ModIndexBasicArraySchema.parse(
       initialTimetable.modindexes
     );
     setModIndexesBasic(selectedIndexes);
-  }, [setModIndexesBasic, initialTimetable]);
+  }, [setModIndexesBasic, initialTimetable, setCurrentTimetable]);
 
   const handleSelectMod = async (selected: ModInfoBasic) => {
     const newMod = await fetchMod(selected.course_code);
