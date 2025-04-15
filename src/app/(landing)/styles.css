@@ -1,0 +1,32 @@
+.landing {
+  position: relative;
+  z-index: 0;
+}
+.landing-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border-radius: 1000px;
+  transition: all 0.5s ease-in-out;
+  font-weight: 600;
+}
+.landing-button:hover {
+  background-color: transparent;
+  box-shadow: 0 0 156px 15px rgba(21, 21, 204, 0.56);
+  animation: pulse 1.5s infinite;
+  transition: all 0.2s ease-in-out;
+}
+.landing-button::after {
+  content: "";
+  position: absolute;
+  width: 103%;
+  height: 110%;
+  border-radius: 1000px;
+  background-image: linear-gradient(
+    to bottom right,
+    rgb(47, 58, 214),
+    rgb(240, 45, 165)
+  );
+  z-index: -1;
+}
