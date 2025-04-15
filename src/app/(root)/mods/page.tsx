@@ -9,7 +9,7 @@ import {
   ArrowRight,
   ArrowRightToLine,
 } from "lucide-react";
-import { ModBasicInfoSchema } from "@/types/modtypes";
+import { fetchModList } from "@/actions/getMods";
 
 const PAGE_SIZE = 15; // You can tweak this
 
@@ -21,12 +21,7 @@ const page = async ({
   const { query = "", page = "1" } = await searchParams;
   const currentPage = Math.max(1, parseInt(page));
 
-  const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
-    cache: "force-cache",
-    next: { revalidate: 28800 }, // 8 hours
-  });
-  const rawData = await res.json();
-  const data = ModBasicInfoSchema.parse(rawData);
+  const data = await fetchModList(); // Fetch mod list data (server action)
 
   // Filter mods based on the query (case insensitive)
   const filtered = data.filter(
@@ -46,6 +41,7 @@ const page = async ({
     <>
       <section className="flex flex-col items-center justify-start">
         <h1 className="text-3xl font-bold mb-4">Find Mods</h1>
+        <h3 className="text-lg text-gray-500 mb-2"> Updated for AY2025/26</h3>
         <SearchForm />
         <p className="text-30-semibold mb-2">
           {query ? `Searching for "${query}"` : "Showing All mods"}

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import TimetableContextWrapper from "@/components/TimetableContextWrapper";
 import { getTimetableById, getUserTimetables } from "@/actions/timetable";
 import { Suspense } from "react";
+import { fetchModList } from "@/actions/getMods";
 
 export default async function Page({
   searchParams,
@@ -25,11 +26,14 @@ export default async function Page({
   if (session && session.user && session.user.id)
     userTimetables = await getUserTimetables();
 
+  const modListData = await fetchModList();
+
   return (
     <Suspense>
       <TimetableContextWrapper
         initialTimetable={timetable}
         userTimetables={userTimetables}
+        modListData={modListData}
       />
     </Suspense>
   );

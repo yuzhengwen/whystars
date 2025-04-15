@@ -1,12 +1,13 @@
 "use client";
-import { baseUrl } from "@/lib/baseUrl";
+//import { baseUrl } from "@/lib/baseUrl";
 import { ModInfoBasic } from "@/types/modtypes";
 
 let modListCache: ModInfoBasic[] = []; // Cache for mod list
 export async function fetchModList(): Promise<ModInfoBasic[]> {
   if (modListCache && modListCache.length > 0) return modListCache;
   try {
-    const res = await fetch(`${baseUrl}/data/module_list.json`);
+    //const res = await fetch(`${baseUrl}/data/module_list.json`);
+    const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`);
     const data = await res.json();
     modListCache = [...data]; // Cache the fetched data
     return data;

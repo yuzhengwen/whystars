@@ -1,6 +1,7 @@
 import { IMod } from "@/lib/models/modModel";
 import AddModButton from "@/components/AddModButton";
 import { ModBasicInfoSchema } from "@/types/modtypes";
+import { fetchMod } from "@/actions/getMods";
 
 export async function generateStaticParams() {
   const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
@@ -20,14 +21,7 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const res = await fetch(`${process.env.DATA_BASE_URL}/mods/${slug}.json`, {
-    cache: "force-cache",
-    next: { revalidate: 28800 }, // 8 hours
-  });
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  const data: IMod = await res.json();
+  const data: IMod = await fetchMod(slug);
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">

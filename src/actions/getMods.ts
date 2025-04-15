@@ -1,18 +1,27 @@
 "use server";
-import { baseUrl } from "@/lib/baseUrl";
+//import { baseUrl } from "@/lib/baseUrl";
 import { IMod } from "@/lib/models/modModel";
+import { ModBasicInfoSchema, ModInfoBasic } from "@/types/modtypes";
 
 // server side fetching with cache
-import { cache } from "react";
-export const fetchMod = cache(async (courseCode: string): Promise<IMod> => {
-  const res = await fetch(`${baseUrl}/data/mods/${courseCode}.json`);
+export const fetchMod = async (courseCode: string): Promise<IMod> => {
+  const res = await fetch(
+    `${process.env.DATA_BASE_URL}/mods/${courseCode}.json`,
+    {
+      cache: "force-cache",
+      next: { revalidate: 28800 }, // 8 hours
+    }
+  );
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
   const data = await res.json();
   if (!data) {
     throw new Error("No mod found");
   }
   return data;
-});
-export const fetchMods = async (courseCodes: string[]): Promise<IMod[]> => {
+};
+export const fetchAllMods = async (courseCodes: string[]): Promise<IMod[]> => {
   return Promise.all(
     courseCodes.map(async (courseCode) => {
       const res = await fetchMod(courseCode);
@@ -20,34 +29,17 @@ export const fetchMods = async (courseCodes: string[]): Promise<IMod[]> => {
     })
   );
 };
-
-/*
-// client side function with caching
-const modCache = new Map<string, IMod>();
-export const fetchMod = async (courseCode: string): Promise<IMod> => {
-  if (modCache.has(courseCode)) {
-    return modCache.get(courseCode) as IMod;
+export async function fetchModList(): Promise<ModInfoBasic[]> {
+  try {
+    const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
+      cache: "force-cache",
+      next: { revalidate: 28800 }, // 8 hours
+    });
+    const rawData = await res.json();
+    const data = ModBasicInfoSchema.parse(rawData);
+    return data;
+  } catch (error) {
+    console.error("Error fetching mod list:", error);
+    throw new Error("Failed to fetch mod list");
   }
-  const res = await fetch(`${baseUrl}/data/mods/${courseCode}.json`);
-  const data = await res.json();
-  if (!data) {
-    throw new Error("No mod found");
-  }
-  modCache.set(courseCode, data);
-  return data;
-};*/
-
-export async function fetchAllMods(courseCodes: string[] | undefined) {
-  const mods = courseCodes
-    ? await Promise.all(
-        courseCodes.map(async (courseCode) => {
-          return await fetchMod(courseCode);
-        })
-      )
-    : undefined;
-  if (!mods) {
-    throw new Error("No mods found");
-  }
-  return mods;
 }
-

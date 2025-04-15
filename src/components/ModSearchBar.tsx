@@ -10,7 +10,7 @@ import {
   CommandEmpty,
 } from "cmdk";
 import { ModInfoBasic } from "@/types/modtypes";
-import { fetchModList } from "@/actions/fetchDataClient";
+import { useModList } from "@/context/TimetableContexts";
 
 const ModSearchBar = ({
   onSelect,
@@ -19,8 +19,8 @@ const ModSearchBar = ({
   onSelect: (mod: ModInfoBasic) => void;
   selectedStrings: string[];
 }) => {
+  const mods = useModList(); 
   const [searchValue, setSearchValue] = React.useState("");
-  const [mods, setMods] = React.useState<ModInfoBasic[]>([]);
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const [onScrollbar, setOnScrollbar] = React.useState(false);
@@ -37,14 +37,7 @@ const ModSearchBar = ({
       inputRef.current.blur();
     }
   };
-  // initial data fetch
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchModList();
-      setMods(data);
-    };
-    fetchData();
-  }, []);
+
   useEffect(() => {
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
