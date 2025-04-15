@@ -11,7 +11,7 @@ import {
   createModIndexWithString,
 } from "@/types/modtypes";
 import { useTimetableStore } from "@/stores/useTimetableStore";
-import { fetchMod, fetchAllMods } from "@/actions/getMods";
+import { fetchMod, fetchMods } from "@/actions/getMods";
 import { useSession } from "next-auth/react";
 import UserTimetableSelect from "./UserTimetableSelect";
 import GenerateSchedule from "./GenerateSchedule";
@@ -33,7 +33,7 @@ export default function TimetableApp() {
   // this has some delay, which means if any component is relying on this, there will be some delay
   useEffect(() => {
     const updateMods = async () => {
-      const newMods = await fetchAllMods(modIndexesBasic.map((m) => m.courseCode));
+      const newMods = await fetchMods(modIndexesBasic.map((m) => m.courseCode));
       setMods(newMods);
     };
     updateMods();

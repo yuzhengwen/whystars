@@ -21,7 +21,7 @@ export const fetchMod = async (courseCode: string): Promise<IMod> => {
   }
   return data;
 };
-export const fetchAllMods = async (courseCodes: string[]): Promise<IMod[]> => {
+export const fetchMods = async (courseCodes: string[]): Promise<IMod[]> => {
   return Promise.all(
     courseCodes.map(async (courseCode) => {
       const res = await fetchMod(courseCode);
