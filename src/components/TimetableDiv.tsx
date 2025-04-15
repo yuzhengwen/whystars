@@ -126,19 +126,6 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
       </div>
       {/* Right side: Days and columns */}
       <div className="relative flex flex-col w-full">
-        {/* Background stripes for each time slot */}
-        <div
-          className={`absolute flex flex-col justify-start items-start h-full w-full top-18 left-0 z-0`}
-        >
-          {times.slice(0, times.length / 2).map((_, i) => (
-            <div
-              key={"bg" + i}
-              className={`h-24 w-full ${
-                i % 2 === 0 ? "bg-secondary" : "bg-background"
-              }`}
-            />
-          ))}
-        </div>
         {/* Timetable Main Grid */}
         <div className="flex w-full h-full ">
           {days.map((day) => (
@@ -146,6 +133,15 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
               key={day + "column"}
               className="relative flex-1 border-r border-gray-300 h-full"
             >
+              {/* Background stripes for each time slot */}
+              <div
+                className="absolute top-18 left-0 right-0 bottom-0 z-0"
+                style={{
+                  backgroundImage: 'linear-gradient(to bottom, var(--secondary) 6rem, var(--background) 0)',
+                  backgroundSize: '100% 12rem',  // Two time slots (2 * 6rem)
+                  backgroundRepeat: 'repeat-y'
+                }}
+              />
               <div
                 key={"header" + day}
                 className="flex-1 p-6 border-b border-gray-300 text-center font-bold"

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import DayConfigInput from "./constraint-inputs/DayConfig";
-import { Button } from "./ui/button";
+import DayConfigInput from "./DayConfig";
+import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useConstraintsStore } from "@/stores/useConstraintsStore";
 
