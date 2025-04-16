@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { DayConfig } from "@/components/ConstraintsInput";
+import { DayConfig } from "@/components/constraint-inputs/ConstraintsInput";
 
 interface ConstraintsState {
   dayConfigs: DayConfig[];

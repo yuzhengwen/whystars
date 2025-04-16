@@ -92,6 +92,7 @@ const page = async ({
           {paginated.map((mod: ModInfoBasic) => (
             <li key={mod.course_code}>
               <Link
+                prefetch={false}
                 href={`/mods/${mod.course_code}`}
                 className="flex flex-col items-center justify-center bg-card shadow-md rounded-md p-3 hover:shadow-lg w-full h-full transition-all duration-300 hover:bg-hover"
               >
