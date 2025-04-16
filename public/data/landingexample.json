@@ -1,0 +1,82 @@
+[
+    {
+        "course_code": "SC2002",
+        "course_name": "OBJECT ORIENTED DESIGN & PROGRAMMING~",
+        "academic_units": 3.0,
+        "indexes": [
+            {
+                "index": "10244",
+                "lessons": [
+                    {
+                        "lesson_type": "LEC/STUDIO",
+                        "group": "SCL2",
+                        "day": "TUE",
+                        "time": "0830-0920",
+                        "venue": "LT2A",
+                        "remark": ""
+                    },
+                    {
+                        "lesson_type": "LEC/STUDIO",
+                        "group": "SCL2",
+                        "day": "FRI",
+                        "time": "1130-1220",
+                        "venue": "LT1A",
+                        "remark": ""
+                    },
+                    {
+                        "lesson_type": "TUT",
+                        "group": "SCEA",
+                        "day": "FRI",
+                        "time": "1030-1120",
+                        "venue": "TR+20",
+                        "remark": "Teaching Wk2-13"
+                    },
+                    {
+                        "lesson_type": "LAB",
+                        "group": "SCEA",
+                        "day": "WED",
+                        "time": "0930-1120",
+                        "venue": "SWLAB1",
+                        "remark": "Teaching Wk2,4,6,8,10,12"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "course_code": "SC2005",
+        "course_name": "OPERATING SYSTEMS~",
+        "academic_units": 3.0,
+        "indexes": [
+            {
+                "index": "10272",
+                "lessons": [
+                    {
+                        "lesson_type": "LEC/STUDIO",
+                        "group": "SCL2",
+                        "day": "THU",
+                        "time": "1030-1220",
+                        "venue": "LT2A",
+                        "remark": ""
+                    },
+                    {
+                        "lesson_type": "TUT",
+                        "group": "SCSA",
+                        "day": "TUE",
+                        "time": "0930-1020",
+                        "venue": "TR+23",
+                        "remark": "Teaching Wk2-13"
+                    },
+                    {
+                        "lesson_type": "LAB",
+                        "group": "SCSA",
+                        "day": "MON",
+                        "time": "1030-1220",
+                        "venue": "SWLAB2",
+                        "remark": "Teaching Wk2,4,6,8,10,12"
+                    }
+                ]
+            }
+        ]
+    }
+]

@@ -1,6 +1,6 @@
 "use server";
 
-import { DayConfig } from "@/components/ConstraintsInput";
+import { DayConfig } from "@/components/constraint-inputs/ConstraintsInput";
 import { parseLessonTiming } from "@/lib/dates";
 import { TimeRange } from "@/lib/daytime";
 import { IIndex, ILesson, IMod } from "@/lib/models/modModel";

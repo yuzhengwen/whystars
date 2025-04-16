@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ModIndexBasic } from "@/types/modtypes";
 import { Spinner } from "./ui/spinner";
-import ConstraintsInput from "./ConstraintsInput";
+import ConstraintsInput from "./constraint-inputs/ConstraintsInput";
 import { useConstraintsStore } from "@/stores/useConstraintsStore";
 
 type Props = {

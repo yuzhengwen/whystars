@@ -18,6 +18,7 @@ import GenerateSchedule from "./GenerateSchedule";
 import { useInitialTimetable } from "@/context/TimetableContexts";
 import { TimetableGrid } from "@/types/TimetableGrid";
 import DownloadButton from "./DownloadButton";
+import { useModColorStore } from "@/stores/useModColorStore";
 
 export default function TimetableApp() {
   const session = useSession();
@@ -28,6 +29,7 @@ export default function TimetableApp() {
     removeCourse,
     setCurrentTimetable,
   } = useTimetableStore();
+  const modColors = useModColorStore((state) => state.modColors);
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
   // mods list with full details automatically updated
   // this has some delay, which means if any component is relying on this, there will be some delay
@@ -82,6 +84,16 @@ export default function TimetableApp() {
   const [clashingModIndexes, setClashingModIndexes] = useState<ModIndexBasic[]>(
     []
   );
+  const earliestStartTime = useMemo(() => {
+    return timetableGrid.isEmpty()
+      ? "No Mods Selected"
+      : timetableGrid.findEarliestStartTime();
+  }, [timetableGrid]);
+  const latestEndTime = useMemo(() => {
+    return timetableGrid.isEmpty()
+      ? "No Mods Selected"
+      : timetableGrid.findLatestEndTime();
+  }, [timetableGrid]);
   useEffect(() => {
     const newGrid = new TimetableGrid();
     mods.forEach((mod) => {
@@ -98,6 +110,12 @@ export default function TimetableApp() {
     setValid(isValid);
   }, [timetableGrid]);
 
+  // calculate total aus
+  const aus: number = useMemo(() => {
+    return mods.reduce((total, mod) => {
+      return total + mod.academic_units;
+    }, 0);
+  }, [mods]);
   return (
     <div className="flex flex-col md:flex-row w-full justify-center items-start px-10 md:gap-20">
       <div className="flex flex-col w-full md:w-1/3 justify-start items-start">
@@ -109,6 +127,11 @@ export default function TimetableApp() {
           selectedStrings={selectedStrings}
           onSelect={handleSelectMod}
         />
+        No. of Modules: {modIndexesBasic.length} <br />
+        Total AUs: {aus}
+        <br />
+        Earliest Start Time: {earliestStartTime} <br />
+        Latest End Time: {latestEndTime} <br />
         <div>
           Timetable Shown:{" "}
           {valid ? (
@@ -146,7 +169,7 @@ export default function TimetableApp() {
           />
         ))}
       </div>
-      <TimetableDiv mods={mods} />
+      <TimetableDiv mods={mods} modIndexesBasic={modIndexesBasic} modColors={modColors}/>
     </div>
   );
 }

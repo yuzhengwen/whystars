@@ -29,6 +29,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <footer className="w-full h-fit text-gray-200 border-t-1 border-gray-400 mt-24">
+          <div className="flex flex-col items-center justify-center w-full h-16 text-gray-500 dark:text-gray-400">
+            <div className="text-sm">
+              © {new Date().getFullYear()} Yu Zhengwen. All rights reserved
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
