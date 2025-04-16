@@ -1,25 +1,21 @@
-"use client";
 import { Highlight } from "@/components/ui/hero-highlight";
 import "./styles.css";
-import { MoveDown } from "lucide-react";
 import Link from "next/link";
-import { useCallback } from "react";
+import TimetableDiv from "@/components/TimetableDiv";
+import { ModIndexBasic } from "@/types/modtypes";
+import { promises as fs } from "fs";
+import { IMod } from "@/lib/models/modModel";
 
-export default function Home() {
-  const scrollToNext = useCallback(() => {
-    const sections = document.querySelectorAll("section");
-    const currentScroll = window.scrollY;
-
-    for (const section of sections) {
-      const rect = section.getBoundingClientRect();
-      const absoluteTop = rect.top + window.scrollY;
-
-      if (absoluteTop > currentScroll + 10) {
-        section.scrollIntoView({ behavior: "smooth" });
-        break;
-      }
-    }
-  }, []);
+export default async function Home() {
+  const file = await fs.readFile("./public/data/landingexample.json", "utf-8");
+  const mods: IMod[] = JSON.parse(file);
+  const modIndexesBasic: ModIndexBasic[] = mods.map((mod) => {
+    return {
+      courseName: mod.course_name,
+      courseCode: mod.course_code,
+      index: mod.indexes[0].index,
+    };
+  });
   return (
     <div className="landing snap-y snap-mandatory overflow-y-scroll h-screen w-screen text-center text-gray-200 relative bg-gray-900">
       <section className="w-full h-dvh flex flex-col items-center justify-center snap-center gap-2">
@@ -40,18 +36,21 @@ export default function Home() {
             Get Started
           </button>
         </Link>
+        <div className="max-w-7xl w-full h-fit border-2 border-gray-700">
+          <TimetableDiv
+            mods={mods}
+            modIndexesBasic={modIndexesBasic}
+            interactive={false}
+            fixedHeight={false}
+          />
+        </div>
+      </section>
+      <section className="w-full h-dvh flex flex-col items-center justify-center snap-center relative">
         <div className="gap-16 flex flex-row justify-center items-center mt-10">
           <span className="text-2xl">Beautiful</span>
           <span className="text-2xl">Smart</span>
           <span className="text-2xl">Yours</span>
         </div>
-        <MoveDown
-          size={36}
-          className="animate-bounce cursor-pointer absolute bottom-5"
-          onClick={scrollToNext}
-        />
-      </section>
-      <section className="w-full h-dvh flex flex-col items-center justify-center snap-center relative">
         <h2 className="text-5xl">How?</h2>
         <p className="mt-4 text-lg">
           You&apos;ve worked hard for your admission. You&apos;re excited to

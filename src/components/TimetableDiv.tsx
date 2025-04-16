@@ -11,10 +11,11 @@ import LessonBlock from "./LessonBlock";
 import { createTimeGrid, mapLessonColumns } from "@/lib/timetableUtils";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { IMod } from "@/lib/models/modModel";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "@/styles/animations.css";
 import { useShallow } from "zustand/shallow";
 import { useInteractivityStore } from "@/stores/useInteractivityStore";
+import { TimetableGrid } from "@/types/TimetableGrid";
 
 const timeSlotHeight = 3; // 3rem
 
@@ -22,10 +23,12 @@ export default function TimetableDiv({
   mods,
   modIndexesBasic,
   interactive = true,
+  fixedHeight = true,
 }: {
   mods: IMod[];
   modIndexesBasic: ModIndexBasic[];
   interactive?: boolean;
+  fixedHeight?: boolean;
 }) {
   const { setCourseIndex } = useTimetableStore();
 
@@ -142,6 +145,42 @@ export default function TimetableDiv({
       setSelectedMod(null);
     }
   };
+
+  // filter out time slots unused
+  const [timetableGrid, setTimetableGrid] = useState<TimetableGrid>(
+    new TimetableGrid()
+  );
+  const earliestStartTime = useMemo(() => {
+    return timetableGrid.isEmpty()
+      ? "No Mods Selected"
+      : timetableGrid.findEarliestStartTime();
+  }, [timetableGrid]);
+  const latestEndTime = useMemo(() => {
+    return timetableGrid.isEmpty()
+      ? "No Mods Selected"
+      : timetableGrid.findLatestEndTime();
+  }, [timetableGrid]);
+  useEffect(() => {
+    const newGrid = new TimetableGrid();
+    mods.forEach((mod) => {
+      newGrid.addIndex(
+        createModIndexWithString(
+          mod,
+          modIndexesBasic.find((m) => m.courseCode == mod.course_code)?.index ??
+            mod.indexes[0].index
+        )
+      );
+      setTimetableGrid(newGrid);
+    });
+  }, [mods, modIndexesBasic]);
+
+  //filter out time slots unused
+  const filteredTimes = fixedHeight
+    ? times
+    : times.filter(
+        (time) => time >= earliestStartTime && time <= latestEndTime
+      );
+
   // not sure why overflow-y-hidden works without cutting off anything but ok
   return (
     <div
@@ -152,7 +191,7 @@ export default function TimetableDiv({
       <div
         className={`relative flex flex-col w-20 text-right text-sm mt-18 pr-1`}
       >
-        {times.map((time) => (
+        {filteredTimes.map((time) => (
           <div key={time} className="h-[3rem] border-b border-gray-300">
             {time}
           </div>
