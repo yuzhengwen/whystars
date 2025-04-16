@@ -18,8 +18,16 @@ import { useInteractivityStore } from "@/stores/useInteractivityStore";
 
 const timeSlotHeight = 3; // 3rem
 
-export default function TimetableDiv({ mods }: { mods: IMod[] }) {
-  const { modIndexesBasic, setCourseIndex } = useTimetableStore();
+export default function TimetableDiv({
+  mods,
+  modIndexesBasic,
+  interactive = true,
+}: {
+  mods: IMod[];
+  modIndexesBasic: ModIndexBasic[];
+  interactive?: boolean;
+}) {
+  const { setCourseIndex } = useTimetableStore();
 
   // client side state to track current selected and hovered mods
   const { hoveredMod, selectedMod, setSelectedMod } = useInteractivityStore(
@@ -111,7 +119,7 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
   };
 
   const handleClick = (clicked: ModLesson) => {
-    console.log("clicked", clicked);
+    if (!interactive) return;
     // havent clicked anything yet
     if (!selectedMod) {
       expandMod(clicked);

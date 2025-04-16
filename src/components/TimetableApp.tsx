@@ -167,7 +167,7 @@ export default function TimetableApp() {
           />
         ))}
       </div>
-      <TimetableDiv mods={mods} />
+      <TimetableDiv mods={mods} modIndexesBasic={modIndexesBasic} />
     </div>
   );
 }
