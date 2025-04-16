@@ -31,6 +31,9 @@ const ModListItem: React.FC<ModListItemProps> = ({
       </div>
       <div className="mb-2">
         <span>{mod.course_code}</span>
+        <span className="ml-5 text-gray-500">
+          {mod.academic_units}AU{mod.academic_units > 1 ? "s" : ""}
+        </span>
       </div>
       <div className="flex items-center gap-2 w-full">
         <span>Index: </span>
