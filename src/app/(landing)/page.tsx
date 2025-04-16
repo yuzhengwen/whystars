@@ -30,7 +30,7 @@ export default async function Home() {
     // <div className="landing snap-y snap-mandatory overflow-y-scroll h-screen w-screen text-center text-gray-200 relative bg-gray-900">
     <>
       <div className="landing text-center text-gray-800 dark:text-gray-200 relative">
-        <nav className="flex flex-row items-center justify-between w-full h-16 px-4 sticky top-0">
+        <nav className="flex flex-row items-center justify-between w-full h-16 px-4 sticky top-0 z-100">
           <span className="text-2xl">WhyStars</span>
           <MobileNav />
           <div className="flex-row gap-8 hidden md:flex">
