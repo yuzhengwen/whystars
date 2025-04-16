@@ -82,6 +82,16 @@ export default function TimetableApp() {
   const [clashingModIndexes, setClashingModIndexes] = useState<ModIndexBasic[]>(
     []
   );
+  const earliestStartTime = useMemo(() => {
+    return timetableGrid.isEmpty()
+      ? "No Mods Selected"
+      : timetableGrid.findEarliestStartTime();
+  }, [timetableGrid]);
+  const latestEndTime = useMemo(() => {
+    return timetableGrid.isEmpty()
+      ? "No Mods Selected"
+      : timetableGrid.findLatestEndTime();
+  }, [timetableGrid]);
   useEffect(() => {
     const newGrid = new TimetableGrid();
     mods.forEach((mod) => {
@@ -117,6 +127,9 @@ export default function TimetableApp() {
         />
         No. of Modules: {modIndexesBasic.length} <br />
         Total AUs: {aus}
+        <br />
+        Earliest Start Time: {earliestStartTime} <br />
+        Latest End Time: {latestEndTime} <br />
         <div>
           Timetable Shown:{" "}
           {valid ? (

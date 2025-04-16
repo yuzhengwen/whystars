@@ -1,4 +1,4 @@
-import { parseLessonTiming } from "@/lib/dates";
+import { addMinutesToTime, compareTimes, parseLessonTiming } from "@/lib/dates";
 import { IIndex } from "@/lib/models/modModel";
 import { createTimeGrid, getLessonTimeOverlaps } from "@/lib/timetableUtils";
 import {
@@ -111,4 +111,38 @@ export class TimetableGrid {
       clashingModIndexes,
     };
   };
+  findEarliestStartTime = () => {
+    let earliestStartTime = "2359";
+    for (const day of this.days) {
+      for (const time of this.times) {
+        if (
+          this.grid[day][time].length > 0 &&
+          compareTimes(time, earliestStartTime) < 0
+        ) {
+          earliestStartTime = time;
+          break;
+        }
+      }
+    }
+    return earliestStartTime;
+  };
+  findLatestEndTime = () => {
+    const reversedTimes = [...this.times].reverse();
+    let latestEndTime = "0000";
+    for (const day of this.days) {
+      for (const time of reversedTimes) {
+        if (
+          this.grid[day][time].length > 0 &&
+          compareTimes(time, latestEndTime) > 0
+        ) {
+          latestEndTime = time;
+          break;
+        }
+      }
+    }
+    return addMinutesToTime(latestEndTime, 20);
+  };
+  isEmpty = () => {
+    return this.modIndexes.length === 0;
+  }
 }

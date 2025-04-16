@@ -7,6 +7,13 @@ export function parseTimeToMinutes(timeString: string) {
   const minutes = parseInt(timeString.slice(2), 10);
   return hours * 60 + minutes;
 }
+export function parseMinutesToTime(minutes:number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours.toString().padStart(2, "0")}${mins
+    .toString()
+    .padStart(2, "0")}`;
+}
 // parse lesson timing to get the day and time range
 export function parseLessonTiming(lesson: ILesson): {
   day: string;
@@ -37,4 +44,22 @@ export function isOverlap(lesson1: ILesson, lesson2: ILesson): boolean {
   const { day: day2, timeRange: range2 } = parseLessonTiming(lesson2);
   // Check if the days are the same and the time ranges overlap
   return day1 === day2 && isTimeOverlap(range1, range2);
+}
+/**
+ *
+ * @param time1
+ * @param time2
+ * @returns The difference in minutes between time1 and time2.  
+ *          A positive number means time1 is later than time2.  
+ *         A negative number means time1 is earlier than time2.
+ */
+export function compareTimes(time1: string, time2: string): number {
+  const time1Minutes = parseTimeToMinutes(time1);
+  const time2Minutes = parseTimeToMinutes(time2);
+  return time1Minutes - time2Minutes;
+}
+export function addMinutesToTime(time: string, minutes: number): string {
+  const timeInMinutes = parseTimeToMinutes(time);
+  const newTimeInMinutes = timeInMinutes + minutes;
+  return parseMinutesToTime(newTimeInMinutes);
 }
