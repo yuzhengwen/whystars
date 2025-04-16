@@ -40,6 +40,11 @@ export default function Home() {
             Get Started
           </button>
         </Link>
+        <div className="gap-16 flex flex-row justify-center items-center mt-10">
+          <span className="text-2xl">Beautiful</span>
+          <span className="text-2xl">Smart</span>
+          <span className="text-2xl">Yours</span>
+        </div>
         <MoveDown
           size={36}
           className="animate-bounce cursor-pointer absolute bottom-5"
