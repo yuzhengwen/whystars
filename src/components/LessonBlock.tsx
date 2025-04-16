@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { ModIndexBasic, ModLesson } from "@/types/modtypes";
-import { useModColorStore } from "@/stores/useModColorStore";
 import { useShallow } from "zustand/shallow";
 import { useInteractivityStore } from "@/stores/useInteractivityStore";
 
@@ -13,6 +12,7 @@ const LessonBlock = ({
   onClick,
   hovered,
   selected,
+  color,
 }: {
   lesson: ModLesson;
   top: number;
@@ -20,14 +20,12 @@ const LessonBlock = ({
   onClick: (lesson: ModLesson) => void;
   hovered: boolean;
   selected: ModIndexBasic | null;
+  color: string;
 }) => {
   const { setHoveredMod } = useInteractivityStore(
     useShallow((state) => ({
       setHoveredMod: state.setHoveredMod,
     }))
-  );
-  const color = useModColorStore(
-    (state) => state.modColors[lesson.courseCode] || "blue"
   );
   // faded color if selection ongoing & lesson is same course as selected but diff index
   return (

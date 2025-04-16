@@ -7,17 +7,20 @@ import { cn } from "@/lib/utils";
 const NextSectionButton = ({ className }: { className?: string }) => {
   const scrollToNext = useCallback(() => {
     const sections = document.querySelectorAll("section");
-    const currentScroll = window.scrollY;
+    // const currentScroll = window.scrollY;
 
-    for (const section of sections) {
-      const rect = section.getBoundingClientRect();
-      const absoluteTop = rect.top + window.scrollY;
+    // for (const section of sections) {
+    //   const rect = section.getBoundingClientRect();
+    //   const absoluteTop = rect.top + window.scrollY;
 
-      if (absoluteTop > currentScroll + 10) {
-        section.scrollIntoView({ behavior: "smooth" });
-        break;
-      }
-    }
+    //   if (absoluteTop > currentScroll + 10) {
+    //     section.scrollIntoView({ behavior: "smooth" });
+    //     break;
+    //   }
+    // }
+    sections[1].scrollIntoView({
+      behavior: "smooth",
+    });
   }, []);
   return (
     <MoveDown

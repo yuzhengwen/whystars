@@ -24,11 +24,13 @@ export default function TimetableDiv({
   modIndexesBasic,
   interactive = true,
   fixedHeight = true,
+  modColors,
 }: {
   mods: IMod[];
   modIndexesBasic: ModIndexBasic[];
   interactive?: boolean;
   fixedHeight?: boolean;
+  modColors: Record<string, string>;
 }) {
   const { setCourseIndex } = useTimetableStore();
 
@@ -184,7 +186,7 @@ export default function TimetableDiv({
   // not sure why overflow-y-hidden works without cutting off anything but ok
   return (
     <div
-      className="flex w-full overflow-x-auto overflow-y-hidden"
+      className="flex w-full overflow-x-auto overflow-y-hidden border-5 border-gray-200 dark:border-gray-800 rounded-lg"
       id="timetable-app"
     >
       {/* Time slots on the left */}
@@ -192,7 +194,10 @@ export default function TimetableDiv({
         className={`relative flex flex-col w-20 text-right text-sm mt-18 pr-1`}
       >
         {filteredTimes.map((time) => (
-          <div key={time} className="h-[3rem] border-b border-gray-300">
+          <div
+            key={time}
+            className="h-[3rem] border-b border-gray-400 first:border-t"
+          >
             {time}
           </div>
         ))}
@@ -204,7 +209,7 @@ export default function TimetableDiv({
           {days.map((day) => (
             <div
               key={day + "column"}
-              className="relative flex-1 border-r border-gray-300 h-full"
+              className="relative flex-1 border-r border-gray-400 h-full first:border-l last:border-r-0"
             >
               {/* Background stripes for each time slot */}
               <div
@@ -218,7 +223,7 @@ export default function TimetableDiv({
               />
               <div
                 key={"header" + day}
-                className="flex-1 p-6 border-b border-gray-300 text-center font-bold"
+                className="flex-1 p-6 border-b border-gray-300 text-center font-bold "
               >
                 {day}
               </div>
@@ -261,6 +266,7 @@ export default function TimetableDiv({
                               !selectedMod && hoveredMod === lesson.courseCode
                             }
                             selected={selectedMod}
+                            color={modColors[lesson.courseCode] || "blue"}
                           />
                         );
                       })}

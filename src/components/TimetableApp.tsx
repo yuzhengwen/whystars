@@ -18,6 +18,7 @@ import GenerateSchedule from "./GenerateSchedule";
 import { useInitialTimetable } from "@/context/TimetableContexts";
 import { TimetableGrid } from "@/types/TimetableGrid";
 import DownloadButton from "./DownloadButton";
+import { useModColorStore } from "@/stores/useModColorStore";
 
 export default function TimetableApp() {
   const session = useSession();
@@ -28,6 +29,7 @@ export default function TimetableApp() {
     removeCourse,
     setCurrentTimetable,
   } = useTimetableStore();
+  const modColors = useModColorStore((state) => state.modColors);
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
   // mods list with full details automatically updated
   // this has some delay, which means if any component is relying on this, there will be some delay
@@ -167,7 +169,7 @@ export default function TimetableApp() {
           />
         ))}
       </div>
-      <TimetableDiv mods={mods} modIndexesBasic={modIndexesBasic} />
+      <TimetableDiv mods={mods} modIndexesBasic={modIndexesBasic} modColors={modColors}/>
     </div>
   );
 }
