@@ -28,13 +28,11 @@ export const ModIndexBasicArraySchema = z.array(ModIndexBasicSchema);
 // Represents the CHOSEN mod + index
 export type ModIndex = ModIndexBasic & {
   lessons: ILesson[];
-  selected?: boolean;
 };
 // Represents the specific lesson of each mod + index
 export type ModLesson = ModIndexBasic &
   ILesson & {
     rowSpan: number;
-    selected?: boolean;
   };
 
 // helper functions to convert between the types
@@ -48,8 +46,7 @@ export function modIndexToSimple(modIndex: ModIndex): ModIndexBasic {
 export function createModLesson(
   modIndex: ModIndexBasic,
   lesson: ILesson,
-  rowSpan?: number,
-  selected?: boolean
+  rowSpan?: number
 ): ModLesson {
   return {
     ...lesson,
@@ -57,7 +54,6 @@ export function createModLesson(
     courseCode: modIndex.courseCode,
     index: modIndex.index,
     rowSpan: rowSpan || 1,
-    selected: selected || false,
   };
 }
 export function createModIndex(mod: IMod, index: IIndex): ModIndex {
@@ -66,7 +62,6 @@ export function createModIndex(mod: IMod, index: IIndex): ModIndex {
     courseCode: mod.course_code,
     index: index.index,
     lessons: index.lessons,
-    selected: true,
   };
 }
 export function createModIndexWithString(mod: IMod, index: string) {

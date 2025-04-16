@@ -12,14 +12,40 @@ import { createTimeGrid, mapLessonColumns } from "@/lib/timetableUtils";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { IMod } from "@/lib/models/modModel";
 import { useEffect, useState } from "react";
+import "@/styles/animations.css";
+import { useShallow } from "zustand/shallow";
+import { useInteractivityStore } from "@/stores/useInteractivityStore";
 
 const timeSlotHeight = 3; // 3rem
 
 export default function TimetableDiv({ mods }: { mods: IMod[] }) {
   const { modIndexesBasic, setCourseIndex } = useTimetableStore();
 
-  // handles local state of which mod is currently being clicked on
-  const [selected, setSelected] = useState<ModIndexBasic | null>(null);
+  // client side state to track current selected and hovered mods
+  const { hoveredMod, selectedMod, setSelectedMod } = useInteractivityStore(
+    useShallow((state) => ({
+      hoveredMod: state.hoveredMod,
+      selectedMod: state.selectedMod,
+      setSelectedMod: state.setSelectedMod,
+    }))
+  );
+  /**
+   * Helper function to check if the modIndex is expanded from the selectedMod
+   * Meaning it appeared after clicking on a lesson block
+   * and is same course code as the one clicked but different index
+   * @param modIndex
+   * @returns
+   */
+  function isExpandedFrom(
+    modIndex: ModIndexBasic,
+    selectedMod: ModIndexBasic | null
+  ) {
+    return (
+      selectedMod &&
+      modIndex.courseCode === selectedMod.courseCode &&
+      modIndex.index !== selectedMod.index
+    );
+  }
 
   // this state is local and used to track the selected + unselected indexes to be displayed
   // when the user clicks on a mod, it will add all the indexes of that mod to the timetable
@@ -39,22 +65,24 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
     setModIndexes(newIndexes);
   }, [mods, modIndexesBasic]);
 
+  // potentially fit this entire chunk in useMemo? Currently causes rendering issues due to dependencies
   const { days, times, grid } = createTimeGrid();
   // populate the grid with lessons
   modIndexes.forEach((mod) => {
     if (mod.lessons && mod.lessons.length > 0) {
       mod.lessons.forEach((lesson) => {
-        // skip lectures for unselected indexes (since lectures are all same time)
-        if (lesson.lesson_type.toLowerCase().includes("lec") && !mod.selected)
+        // skip lectures for indexes that are expanded but not selected (since lectures are all same time)
+        if (
+          lesson.lesson_type.toLowerCase().includes("lec") &&
+          isExpandedFrom(mod, selectedMod)
+        )
           return;
         const {
           day,
           timeRange: { startTime, duration },
         } = parseLessonTiming(lesson);
         const rowSpan = Math.ceil(duration / 30);
-        grid[day][startTime].push(
-          createModLesson(mod, lesson, rowSpan, mod.selected)
-        );
+        grid[day][startTime].push(createModLesson(mod, lesson, rowSpan));
       });
     }
   });
@@ -62,10 +90,7 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
 
   const removeAllButClicked = (clicked: ModIndexBasic) => {
     setModIndexes((prev) =>
-      prev.filter(
-        (mod) =>
-          mod.courseCode !== clicked.courseCode || mod.index === clicked.index
-      )
+      prev.filter((mod) => !isExpandedFrom(mod, clicked))
     );
   };
   const expandMod = (clicked: ModIndexBasic) => {
@@ -87,25 +112,26 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
 
   const handleClick = (clicked: ModLesson) => {
     console.log("clicked", clicked);
-    if (clicked.selected && !selected) {
+    // havent clicked anything yet
+    if (!selectedMod) {
       expandMod(clicked);
-      setSelected(clicked);
-    } else if (clicked.selected && selected) {
-      // clicked a different mod
-      if (selected.courseCode !== clicked.courseCode) {
-        removeAllButClicked(selected);
+      setSelectedMod(clicked);
+    } else if (!isExpandedFrom(clicked, selectedMod)) {
+      // clicked a different mod during selection
+      if (selectedMod.courseCode !== clicked.courseCode) {
+        removeAllButClicked(selectedMod);
         expandMod(clicked);
-        setSelected(clicked);
+        setSelectedMod(clicked);
         return;
       }
-      // clicked the same mod that was selected
+      // clicked the same mod that was already selected
       removeAllButClicked(clicked);
-      setSelected(null);
-    } else if (!clicked.selected) {
+      setSelectedMod(null);
+    } else if (isExpandedFrom(clicked, selectedMod)) {
       // since there is an actual change in selected indexes, update the global state
       // the changes will be reflected in modIndexes, which will update the timetable
       setCourseIndex(clicked.courseCode, clicked.courseName, clicked.index);
-      setSelected(null);
+      setSelectedMod(null);
     }
   };
   // not sure why overflow-y-hidden works without cutting off anything but ok
@@ -137,9 +163,10 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
               <div
                 className="absolute top-18 left-0 right-0 bottom-0 z-0"
                 style={{
-                  backgroundImage: 'linear-gradient(to bottom, var(--secondary) 6rem, var(--background) 0)',
-                  backgroundSize: '100% 12rem',  // Two time slots (2 * 6rem)
-                  backgroundRepeat: 'repeat-y'
+                  backgroundImage:
+                    "linear-gradient(to bottom, var(--secondary) 6rem, var(--background) 0)",
+                  backgroundSize: "100% 12rem", // Two time slots (2 * 6rem)
+                  backgroundRepeat: "repeat-y",
                 }}
               />
               <div
@@ -182,6 +209,11 @@ export default function TimetableDiv({ mods }: { mods: IMod[] }) {
                             lesson={lesson}
                             top={yOffset * timeSlotHeight}
                             height={lesson.rowSpan * timeSlotHeight - 0.8} // slightly smaller height
+                            // hover effect only when no mods actively selected
+                            hovered={
+                              !selectedMod && hoveredMod === lesson.courseCode
+                            }
+                            selected={selectedMod}
                           />
                         );
                       })}

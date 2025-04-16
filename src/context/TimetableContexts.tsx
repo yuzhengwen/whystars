@@ -11,3 +11,4 @@ export const useInitialTimetable = () => useContext(InitialTimetableContext);
 
 export const ModListContext = createContext<ModInfoBasic[]>([]);
 export const useModList = () => useContext(ModListContext);
+

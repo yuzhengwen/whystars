@@ -24,7 +24,7 @@ export default function TimetableAppWrapper({
     <InitialTimetableContext.Provider value={initialTimetable}>
       <UserTimetablesContext.Provider value={userTimetables}>
         <ModListContext.Provider value={modListData}>
-          <TimetableApp />
+            <TimetableApp />
         </ModListContext.Provider>
       </UserTimetablesContext.Provider>
     </InitialTimetableContext.Provider>
