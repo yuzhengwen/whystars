@@ -4,7 +4,7 @@ import { DayConfig } from "@/components/constraint-inputs/ConstraintsInput";
 import { parseLessonTiming } from "@/lib/dates";
 import { TimeRange } from "@/lib/daytime";
 import { IIndex, ILesson, IMod } from "@/lib/models/modModel";
-import { checkLessonsOverlap } from "@/lib/timetableUtils";
+import {  checkLessonTimesOverlap } from "@/lib/timetableUtils";
 import {
   createModIndex,
   ModIndexBasic,
@@ -107,6 +107,7 @@ export const generateSchedules = async (
 };
 
 const checkLecturesClash = (selectedMods: IMod[]) => {
+  // assuming all indexes will have the same lecture time
   const lectures: ILesson[] = selectedMods
     .map((mod) => {
       return mod.indexes[0].lessons.find((lesson) => {
@@ -114,7 +115,7 @@ const checkLecturesClash = (selectedMods: IMod[]) => {
       });
     })
     .filter((lesson): lesson is ILesson => lesson !== undefined);
-  return checkLessonsOverlap(lectures);
+  return checkLessonTimesOverlap(lectures);
 };
 
 const filterConstraints = (

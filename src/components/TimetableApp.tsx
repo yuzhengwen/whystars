@@ -104,10 +104,13 @@ export default function TimetableApp() {
     });
   }, [mods, selectedIndexes]);
   useEffect(() => {
-    console.log("Timetable grid updated", timetableGrid);
-    const { isValid, clashingModIndexes } = timetableGrid.isValid();
-    setClashingModIndexes(Array.from(clashingModIndexes.values()));
-    setValid(isValid);
+    async function checkValidity() {
+      console.log("Timetable grid updated", timetableGrid);
+      const { isValid, clashingModIndexes } = await timetableGrid.isValid();
+      setClashingModIndexes(Array.from(clashingModIndexes.values()));
+      setValid(isValid);
+    }
+    checkValidity();
   }, [timetableGrid]);
 
   // calculate total aus
@@ -169,7 +172,11 @@ export default function TimetableApp() {
           />
         ))}
       </div>
-      <TimetableDiv mods={mods} modIndexesBasic={modIndexesBasic} modColors={modColors}/>
+      <TimetableDiv
+        mods={mods}
+        modIndexesBasic={modIndexesBasic}
+        modColors={modColors}
+      />
     </div>
   );
 }
