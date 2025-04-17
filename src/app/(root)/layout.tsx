@@ -12,7 +12,7 @@ export default function Layout({
           <header className="w-full border-b">
             <NavBar />
           </header>
-          <div className="flex flex-col min-h-screen bg-background pt-4">
+          <div className="flex flex-col min-h-screen bg-background pt-4 items-center justify-start">
               {children}
           </div>
         </Providers>
