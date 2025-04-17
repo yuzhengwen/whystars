@@ -81,9 +81,6 @@ export const generateSchedules = async (
         recursiveGenerate(i + 1, currentTimetable);
         // backtrack
         currentTimetable.removeIndex(modIndex);
-        if (allSchedules.length > 3) {
-          return;
-        }
       } else {
         console.log(`Index ${index.index} cannot be added to schedule`);
       }

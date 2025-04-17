@@ -106,9 +106,9 @@ export default function TimetableDiv({
       prev.filter((mod) => !isExpandedFrom(mod, clicked))
     );
   };
-  const expandMod = (clicked: ModIndexBasic) => {
+  const expandMod = (clicked: ModIndexBasic): ModIndex[] => {
     const mod = mods.find((mod) => mod.course_code === clicked.courseCode);
-    if (!mod) return;
+    if (!mod || mod.indexes.length == 1) return [];
     // add all indexes of the clicked mod
     const newIndexes = mod.indexes
       .map((index) => ({
@@ -120,14 +120,16 @@ export default function TimetableDiv({
       }))
       // remove the index being clicked from the newIndexes
       .filter((index) => index.index !== clicked.index);
-    setModIndexes((prev) => [...prev, ...newIndexes]);
+    return newIndexes;
   };
 
   const handleClick = (clicked: ModLesson) => {
     if (!interactive) return;
     // havent clicked anything yet
     if (!selectedMod) {
-      expandMod(clicked);
+      const newIndexes = expandMod(clicked);
+      if (newIndexes.length === 0) return;
+      setModIndexes((prev) => [...prev, ...newIndexes]);
       setSelectedMod(clicked);
     } else if (!isExpandedFrom(clicked, selectedMod)) {
       // clicked a different mod during selection
