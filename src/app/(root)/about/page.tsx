@@ -7,15 +7,21 @@ export default async function Home() {
       <ul className="mt-4 text-lg list-disc list-inside">
         <li>Search for modules and their respective index</li>
         <li>Easy visual layout and configuring of timetable</li>
-        <li>Generate valid timetables based on the selected modules</li>
-        <li>Save the generated timetable</li>
+        <li>
+          Generate valid timetables based on the selected modules and your
+          specified requirements
+        </li>
+        <li>Save & load the timetables</li>
         <li>Access your timetable anywhere by creating an account</li>
+        <li>Export in various formats</li>
       </ul>
       <h2 className="mt-4 text-2xl">Upcoming Features</h2>
       <ul className="mt-4 text-lg list-disc list-inside">
+        <li>Easily share timetable with your friends</li>
+        <li>More options to specify for timetable generation</li>
         <li>AI Integration</li>
-        <li>Save & load multiple timetables</li>
         <li>Much more...</li>
+        <li>You can request them too!</li>
       </ul>
       <h1 className="mt-4 text-3xl">Source Code</h1>
       <p className="text-blue-700 mt-4 text-lg hover:text-blue-600 hover:underline cursor-pointer">
@@ -36,10 +42,11 @@ export default async function Home() {
       <h2 className="mt-4 text-2xl">Stack</h2>
       <ul className="mt-4 text-m list-disc list-inside">
         <li>Framework: Next.js 15</li>
-        <li>Styling: Tailwind CSS & Shadcn</li>
+        <li>Styling & UI: Tailwind CSS, Shadcn, Framer Motion</li>
         <li>Database: Neon, Prisma ORM</li>
         <li>Auth: Auth.js</li>
         <li>Deployment: Vercel</li>
+        <li>Other Notable Libraries: Zustand, zod, html2canvas-pro, jspdf</li>
       </ul>
     </div>
   );

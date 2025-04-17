@@ -1,7 +1,7 @@
-import { ModLesson } from "@/types/modtypes";
+import { ModIndexBasic, ModLesson } from "@/types/modtypes";
 import { parseLessonTiming } from "./dates";
 import { ILesson } from "./models/modModel";
-import { days, times } from "@/lib/constants";
+import { days as defaultDays, times as defaultTimes } from "@/lib/constants";
 
 /**
  *
@@ -71,8 +71,10 @@ const groupLessonsByColumns = (lessons: ModLesson[]): ModLesson[][] => {
  *
  * @returns An object containing the days, times, and the initialized grid.
  * */
-export const createTimeGrid = () => {
+export const createTimeGrid = (days?: string[], times?: string[]) => {
   const grid: Record<string, Record<string, ModLesson[]>> = {};
+  days = days || defaultDays;
+  times = times || defaultTimes;
   days.forEach((day) => {
     grid[day] = {};
     times.forEach((time) => {
@@ -111,14 +113,81 @@ export const getLessonTimeOverlaps = (
 
   return overlapTimes;
 };
-export const checkLessonsOverlap = (lessons: ILesson[]) => {
-  // in the format {"MON": ["0830", "0900"]}
-  // this means that on MON, there are lessons at 0830 and 0900
+
+export function checkModLessonsOverlap(lessons: ModLesson[]) {
+  // use map to allow comparison by course code instead of object references
+  const clashingModIndexes: Map<string, ModIndexBasic> = new Map();
+  const busySchedules: Record<string, Record<string, ModLesson[]>> = {};
+
+  // populating busy times
+  for (const lesson of lessons) {
+    const { day } = parseLessonTiming(lesson);
+    const overlapTimes = getLessonTimeOverlaps(lesson, defaultTimes);
+    if (!busySchedules[day]) busySchedules[day] = {};
+    const timeSlots = busySchedules[day]!;
+    for (const time of overlapTimes) {
+      if (!timeSlots[time]) timeSlots[time] = [];
+      timeSlots[time]!.push(lesson);
+    }
+  }
+  // single out lessons with overlapping times
+  const overlappingLessonSets: ModLesson[][] = [];
+  for (const day of Object.values(busySchedules)) {
+    for (const modLessons of Object.values(day)) {
+      if (modLessons.length > 1) {
+        overlappingLessonSets.push(modLessons);
+      }
+    }
+  }
+  for (const overlappingLessons of overlappingLessonSets) {
+    // lessons overlap in time but are legal to overlap
+    if (checkLessonsLegalOverlap(overlappingLessons)) continue;
+    // else, add to clashingModIndexes
+    const modIndexesBasic = overlappingLessons.map(
+      (lesson) => lesson as ModIndexBasic
+    );
+    modIndexesBasic.forEach((modIndex) => {
+      const key = `${modIndex.courseCode}-${modIndex.index}`;
+      clashingModIndexes.set(key, modIndex);
+    });
+  }
+  return {
+    isValid: clashingModIndexes.size === 0,
+    clashingModIndexes: clashingModIndexes.values().toArray(),
+  };
+}
+/**
+ * Checks if a set of lessons are allowed to overlap in time
+ * Currently under 2 conditions it is legal:
+ * 1. If the lessons are from the same course
+ * 2. If the lessons are on different weeks
+ * @param overlappingLessons lessons that overlap in timeslots
+ */
+export function checkLessonsLegalOverlap(
+  overlappingLessons: ModLesson[]
+): boolean {
+  // determine if lessons overlap in weeks
+  const lessonWeeks: number[] = [];
+  overlappingLessons.forEach((lesson) => {
+    const weeks = extractLessonWeeks(lesson);
+    lessonWeeks.push(...weeks);
+  });
+  if (new Set(lessonWeeks).size === lessonWeeks.length) return true;
+  // determine if lessons are from the same course
+  if (
+    overlappingLessons.every(
+      (lesson) => lesson.courseCode === overlappingLessons[0].courseCode
+    )
+  )
+    return true;
+  return false;
+}
+export function checkLessonTimesOverlap(lessons: ILesson[]) {
   const busyTimes: Record<string, string[]> = {};
   lessons.forEach((lesson) => {
     const { day } = parseLessonTiming(lesson);
     if (!busyTimes[day]) busyTimes[day] = [];
-    const overlapTimes = getLessonTimeOverlaps(lesson, times);
+    const overlapTimes = getLessonTimeOverlaps(lesson, defaultTimes);
     busyTimes[day].push(...overlapTimes);
   });
   for (const day in busyTimes) {
@@ -129,4 +198,21 @@ export const checkLessonsOverlap = (lessons: ILesson[]) => {
     }
   }
   return false; // No overlaps found
-};
+}
+
+/**
+ *
+ * @param lesson
+ * @returns array of weeks that the lesson is on
+ */
+export function extractLessonWeeks(lesson: ILesson): number[] {
+  const remark = lesson.remark;
+  // e.g. Wk2,4,6,8,10,12
+  const weekPattern = /Wk(\d+(?:,\d+)*)/;
+  const match = remark.match(weekPattern);
+  if (match && match[1]) {
+    const weekNumbers = match[1].split(",").map(Number);
+    return weekNumbers;
+  }
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]; // default to all weeks if no match found
+}

@@ -20,7 +20,7 @@ const GenerateSchedule = ({ mods }: Props) => {
   const [schedules, setSchedules] = useState<ModIndexBasic[][]>([]);
   const [index, setIndex] = useState<number>(0);
   const [indexInput, setIndexInput] = useState<string>("");
-  const { dayConfigs } = useConstraintsStore();
+  const { dayConfigs, lockedList: lockedList } = useConstraintsStore();
 
   // without schedules as dependency it can use old value due to function closure
   const setIndexHelper = useCallback(
@@ -41,7 +41,8 @@ const GenerateSchedule = ({ mods }: Props) => {
     setLoading(true);
     const { generatedSchedules, error } = await generateSchedules(
       mods,
-      dayConfigs
+      dayConfigs,
+      modIndexesBasic.filter((mod) => lockedList.includes(mod.courseCode))
     );
     setLoading(false);
     if (!generatedSchedules || generatedSchedules.length === 0) {

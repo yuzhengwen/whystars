@@ -1,12 +1,11 @@
 import { addMinutesToTime, compareTimes, parseLessonTiming } from "@/lib/dates";
-import { IIndex } from "@/lib/models/modModel";
-import { createTimeGrid, getLessonTimeOverlaps } from "@/lib/timetableUtils";
 import {
-  ModLesson,
-  ModIndex,
-  createModLesson,
-  ModIndexBasic,
-} from "./modtypes";
+  checkLessonsLegalOverlap,
+  checkModLessonsOverlap,
+  createTimeGrid,
+  getLessonTimeOverlaps,
+} from "@/lib/timetableUtils";
+import { ModLesson, ModIndex, createModLesson } from "./modtypes";
 
 export class TimetableGrid {
   grid: Record<string, Record<string, ModLesson[]>>;
@@ -55,22 +54,32 @@ export class TimetableGrid {
    * @param index - The index to check if it can be added to the schedule
    * @returns true if the index can be added to the schedule, false otherwise
    */
-  canAddToSchedule = (index: IIndex) => {
+  canAddToSchedule = (index: ModIndex) => {
     if (this.modIndexes.length === 0) return true; // no mods in the grid, so we can add anything
     if (this.modIndexes.find((i) => i.index === index.index)) return false; // already in the grid
-    const indexBusyTimes: Record<string, string[]> = {};
+    // structure: { day: { time: ModLesson[] } }
+    const indexBusyTimes: Record<string, Record<string, ModLesson[]>> = {};
     for (const lesson of index.lessons) {
       const { day } = parseLessonTiming(lesson);
       // add the day entry if it doesn't exist
-      if (!indexBusyTimes[day]) indexBusyTimes[day] = [];
+      if (!indexBusyTimes[day]) indexBusyTimes[day] = {};
       // add the time entry on the day
-      for (const time of getLessonTimeOverlaps(lesson, this.times))
-        indexBusyTimes[day].push(time);
+      for (const time of getLessonTimeOverlaps(lesson, this.times)) {
+        if (!indexBusyTimes[day][time]) indexBusyTimes[day][time] = [];
+        indexBusyTimes[day][time].push(createModLesson(index, lesson));
+      }
     }
     // check each day and time against the grid
     for (const day in indexBusyTimes) {
-      for (const time of indexBusyTimes[day]) {
-        if (this.grid[day][time].length > 0) {
+      for (const time in indexBusyTimes[day]) {
+        if (
+          // if multiple lessons in the same time slot, and illegal overlap, return false
+          this.grid[day][time].length > 0 &&
+          !checkLessonsLegalOverlap([
+            ...this.grid[day][time],
+            ...indexBusyTimes[day][time],
+          ])
+        ) {
           return false;
         }
       }
@@ -90,26 +99,16 @@ export class TimetableGrid {
    * @description: Check if the grid is valid (no clashes) and return the clashing mod indexes
    * @returns { isValid: boolean, clashingModIndexes: Map<string, ModIndexBasic> }
    */
-  isValid = () => {
-    // use map to avoid duplicates (without strict equality check of Set)
-    const clashingModIndexes = new Map<string, ModIndexBasic>();
-    for (const day of this.days) {
-      for (const time of this.times) {
-        const lessons = this.grid[day][time];
-        if (
-          lessons.length > 1 &&
-          lessons.some((lesson) => lesson.index !== lessons[0].index) // ensure at least 2 different lessons (if all lessons are from same index, no clash)
-        ) {
-          lessons.forEach((lesson) => {
-            clashingModIndexes.set(lesson.courseCode, lesson);
-          });
-        }
-      }
-    }
-    return {
-      isValid: clashingModIndexes.size === 0,
-      clashingModIndexes,
-    };
+  isValid = async () => {
+    // create flat array of ModLesson objects from modIndexes
+    const modLessons = this.modIndexes
+      .map((modIndex) => {
+        return modIndex.lessons.map((lesson) => {
+          return createModLesson(modIndex, lesson);
+        });
+      })
+      .flat(1);
+    return checkModLessonsOverlap(modLessons);
   };
   findEarliestStartTime = () => {
     let earliestStartTime = "2359";
@@ -144,5 +143,5 @@ export class TimetableGrid {
   };
   isEmpty = () => {
     return this.modIndexes.length === 0;
-  }
+  };
 }

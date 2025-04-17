@@ -4,9 +4,10 @@ import { DayConfig } from "@/components/constraint-inputs/ConstraintsInput";
 import { parseLessonTiming } from "@/lib/dates";
 import { TimeRange } from "@/lib/daytime";
 import { IIndex, ILesson, IMod } from "@/lib/models/modModel";
-import { checkLessonsOverlap } from "@/lib/timetableUtils";
+import { checkLessonTimesOverlap } from "@/lib/timetableUtils";
 import {
   createModIndex,
+  createModIndexWithString,
   ModIndexBasic,
   modIndexToSimple,
 } from "@/types/modtypes";
@@ -15,9 +16,10 @@ import { TimetableGrid } from "@/types/TimetableGrid";
 const maxSchedules = 100;
 export const generateSchedules = async (
   selectedMods: IMod[],
-  dayConfigs?: DayConfig[]
+  dayConfigs?: DayConfig[],
+  lockedList?: ModIndexBasic[]
 ): Promise<{ generatedSchedules: ModIndexBasic[][]; error: string }> => {
-  // pre checks
+  // pre checks that terminate function early if fails
   if (selectedMods.length === 0) {
     return { generatedSchedules: [], error: "No mods selected" };
   }
@@ -75,38 +77,50 @@ export const generateSchedules = async (
     console.log(`Trying to add ${currentMod.course_code}`);
     currentMod.indexes.forEach((index) => {
       // check if this index can be added to the current schedule
-      if (currentTimetable.canAddToSchedule(index)) {
         const modIndex = createModIndex(currentMod, index);
+      if (currentTimetable.canAddToSchedule(modIndex)) {
         currentTimetable.addIndex(modIndex);
         recursiveGenerate(i + 1, currentTimetable);
-        // backtrack
-        currentTimetable.removeIndex(modIndex);
-        if (allSchedules.length > 3) {
-          return;
-        }
+        currentTimetable.removeIndex(modIndex); // backtrack
       } else {
         console.log(`Index ${index.index} cannot be added to schedule`);
       }
     });
   };
 
-  await recursiveGenerate(0, new TimetableGrid());
-
-  console.log("\nTotal schedules found:", allSchedules.length);
-  allSchedules.forEach((schedule) => {
-    console.log("Schedule found:");
-    schedule.forEach((modIndex) => {
-      console.log(
-        `Mod ${modIndex.courseCode} ${modIndex.index} ${modIndex.courseName}`
+  const timetableGrid = new TimetableGrid();
+  // pre populate with locked mod indexes
+  if (lockedList) {
+    for (const lockedCourseCode of lockedList) {
+      const mod = filteredMods.find(
+        (mod) => mod.course_code === lockedCourseCode.courseCode
       );
-    });
-  });
-  if (allSchedules.length ===0)
+      if (!mod) {
+        return {
+          generatedSchedules: [],
+          error: "Constraints cannot be satisfied given the locked mods",
+        };
+      }
+      timetableGrid.addIndex(
+        createModIndexWithString(mod, lockedCourseCode.index)
+      );
+    }
+  }
+  // remove locked mods from filteredMods so we don't try to add them again
+  filteredMods = filteredMods.filter(
+    (mod) =>
+      !lockedList?.some((lockedMod) => lockedMod.courseCode === mod.course_code)
+  );
+  // call recursive function
+  await recursiveGenerate(0, timetableGrid);
+
+  if (allSchedules.length === 0)
     return { generatedSchedules: [], error: "No schedules could be generated" };
   return { generatedSchedules: allSchedules, error: "" };
 };
 
 const checkLecturesClash = (selectedMods: IMod[]) => {
+  // assuming all indexes will have the same lecture time
   const lectures: ILesson[] = selectedMods
     .map((mod) => {
       return mod.indexes[0].lessons.find((lesson) => {
@@ -114,9 +128,15 @@ const checkLecturesClash = (selectedMods: IMod[]) => {
       });
     })
     .filter((lesson): lesson is ILesson => lesson !== undefined);
-  return checkLessonsOverlap(lectures);
+  return checkLessonTimesOverlap(lectures);
 };
 
+/**
+ *
+ * @param selectedMods original selected mods
+ * @param dayConfigs
+ * @returns whitelist of mods and their indexes that are valid given the constraints
+ */
 const filterConstraints = (
   selectedMods: IMod[],
   dayConfigs: DayConfig[]

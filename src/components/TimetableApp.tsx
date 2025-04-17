@@ -8,7 +8,6 @@ import {
   ModInfoBasic,
   ModIndexBasic,
   ModIndexBasicArraySchema,
-  createModIndexWithString,
 } from "@/types/modtypes";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { fetchMod, fetchMods } from "@/actions/getMods";
@@ -16,9 +15,9 @@ import { useSession } from "next-auth/react";
 import UserTimetableSelect from "./UserTimetableSelect";
 import GenerateSchedule from "./GenerateSchedule";
 import { useInitialTimetable } from "@/context/TimetableContexts";
-import { TimetableGrid } from "@/types/TimetableGrid";
 import DownloadButton from "./DownloadButton";
 import { useModColorStore } from "@/stores/useModColorStore";
+import { useTimetableGrid } from "@/hooks/useTimetableGrid";
 
 export default function TimetableApp() {
   const session = useSession();
@@ -33,12 +32,13 @@ export default function TimetableApp() {
   const [mods, setMods] = useState<IMod[]>([]); // contains full mod details
   // mods list with full details automatically updated
   // this has some delay, which means if any component is relying on this, there will be some delay
+
   useEffect(() => {
-    const updateMods = async () => {
-      const newMods = await fetchMods(modIndexesBasic.map((m) => m.courseCode));
+    async function fetchAndSetMods(courseCodes: string[]) {
+      const newMods = await fetchMods(courseCodes);
       setMods(newMods);
-    };
-    updateMods();
+    }
+    fetchAndSetMods(modIndexesBasic.map((m) => m.courseCode));
   }, [modIndexesBasic]);
 
   // for the input fields to sync with the selected mod indexes
@@ -66,9 +66,8 @@ export default function TimetableApp() {
     setModIndexesBasic(selectedIndexes);
   }, [setModIndexesBasic, initialTimetable, setCurrentTimetable]);
 
-  const handleSelectMod = async (selected: ModInfoBasic) => {
+  const handleAddMod = async (selected: ModInfoBasic) => {
     const newMod = await fetchMod(selected.course_code);
-    setMods((prev) => [...prev, newMod]);
     setCourseIndex(
       newMod.course_code,
       newMod.course_name,
@@ -78,36 +77,22 @@ export default function TimetableApp() {
 
   // show validity of timetable
   const [valid, setValid] = useState(true);
-  const [timetableGrid, setTimetableGrid] = useState<TimetableGrid>(
-    new TimetableGrid()
-  );
   const [clashingModIndexes, setClashingModIndexes] = useState<ModIndexBasic[]>(
     []
   );
-  const earliestStartTime = useMemo(() => {
-    return timetableGrid.isEmpty()
-      ? "No Mods Selected"
-      : timetableGrid.findEarliestStartTime();
-  }, [timetableGrid]);
-  const latestEndTime = useMemo(() => {
-    return timetableGrid.isEmpty()
-      ? "No Mods Selected"
-      : timetableGrid.findLatestEndTime();
-  }, [timetableGrid]);
+  const {
+    grid: timetableGrid,
+    earliestStartTime,
+    latestEndTime,
+  } = useTimetableGrid(mods, modIndexesBasic);
   useEffect(() => {
-    const newGrid = new TimetableGrid();
-    mods.forEach((mod) => {
-      newGrid.addIndex(
-        createModIndexWithString(mod, selectedIndexes[mod.course_code])
-      );
-      setTimetableGrid(newGrid);
-    });
-  }, [mods, selectedIndexes]);
-  useEffect(() => {
-    console.log("Timetable grid updated", timetableGrid);
-    const { isValid, clashingModIndexes } = timetableGrid.isValid();
-    setClashingModIndexes(Array.from(clashingModIndexes.values()));
-    setValid(isValid);
+    async function checkValidity() {
+      console.log("Timetable grid updated", timetableGrid);
+      const { isValid, clashingModIndexes } = await timetableGrid.isValid();
+      setClashingModIndexes(Array.from(clashingModIndexes.values()));
+      setValid(isValid);
+    }
+    checkValidity();
   }, [timetableGrid]);
 
   // calculate total aus
@@ -125,7 +110,7 @@ export default function TimetableApp() {
         {/* <AiButton /> */}
         <ModSearchBar
           selectedStrings={selectedStrings}
-          onSelect={handleSelectMod}
+          onSelect={handleAddMod}
         />
         No. of Modules: {modIndexesBasic.length} <br />
         Total AUs: {aus}
@@ -169,7 +154,11 @@ export default function TimetableApp() {
           />
         ))}
       </div>
-      <TimetableDiv mods={mods} modIndexesBasic={modIndexesBasic} modColors={modColors}/>
+      <TimetableDiv
+        mods={mods}
+        modIndexesBasic={modIndexesBasic}
+        modColors={modColors}
+      />
     </div>
   );
 }

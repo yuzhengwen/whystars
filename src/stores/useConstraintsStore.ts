@@ -6,6 +6,8 @@ interface ConstraintsState {
   addDayConfig: (config: DayConfig) => void;
   removeDayConfig: (index: number) => void;
   setDayConfigAtIndex: (index: number, config: DayConfig) => void;
+  lockedList: string[];
+  toggleLocked: (courseCode: string, toggle: boolean) => void;
 }
 /*
 const sampleDayConfig: DayConfig[] = [
@@ -27,5 +29,13 @@ export const useConstraintsStore = create<ConstraintsState>()((set) => ({
       const newConfigs = [...state.dayConfigs];
       newConfigs[index] = config;
       return { dayConfigs: newConfigs };
+    }),
+  lockedList: [],
+  toggleLocked: (courseCode, toggle) =>
+    set((state) => {
+      const lockedList = new Set(state.lockedList);
+      if (toggle) lockedList.add(courseCode);
+      else lockedList.delete(courseCode);
+      return { lockedList: Array.from(lockedList) };
     }),
 }));
