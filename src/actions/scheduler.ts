@@ -17,7 +17,7 @@ export const generateSchedules = async (
   selectedMods: IMod[],
   dayConfigs?: DayConfig[]
 ): Promise<{ generatedSchedules: ModIndexBasic[][]; error: string }> => {
-  // pre checks
+  // pre checks that terminate function early if fails
   if (selectedMods.length === 0) {
     return { generatedSchedules: [], error: "No mods selected" };
   }
