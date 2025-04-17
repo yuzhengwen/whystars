@@ -77,11 +77,12 @@ export default async function Home() {
         <section className="w-full h-fit flex flex-col items-center justify-center gap-2 pt-24">
           <Providers>
             <div className="max-w-7xl w-full h-fit">
-              <div className="gap-32 flex flex-row justify-center items-center mt-2 relative">
-                <span className="text-4xl font-bold mb-2">
-                  Beautiful, Smart, <ColourfulText text="Yours" />
-                  <ModeToggleIconOnly className="absolute right-0" />
-                </span>
+              <div className="flex flex-col justify-center items-center mt-2 relative">
+                <div className="text-4xl font-bold mb-2 break-words">
+                  <h2>Beautiful. Smart.</h2>
+                  <ColourfulText text="Yours" />
+                </div>
+                <ModeToggleIconOnly className="md:absolute right-0" />
               </div>
               <TimetableDiv
                 mods={mods}
