@@ -10,6 +10,7 @@ import Providers from "@/components/Providers";
 import { ModeToggleIconOnly } from "@/components/ModeToggleIconOnly";
 import { ColourfulText } from "@/components/ui/colourful-text";
 import { CardDemo } from "./landing-card";
+import MobileNav from "@/components/MobileNav";
 
 const modColors: Record<string, string> = {
   SC2002: "#3F37C9",
@@ -29,9 +30,10 @@ export default async function Home() {
     // <div className="landing snap-y snap-mandatory overflow-y-scroll h-screen w-screen text-center text-gray-200 relative bg-gray-900">
     <>
       <div className="landing text-center text-gray-800 dark:text-gray-200 relative">
-        <nav className="flex flex-row items-center justify-between w-full h-16 px-4 sticky top-0">
+        <nav className="flex flex-row items-center justify-between w-full h-16 px-4 sticky top-0 z-100">
           <span className="text-2xl">WhyStars</span>
-          <div className="flex flex-row gap-8">
+          <MobileNav />
+          <div className="flex-row gap-8 hidden md:flex">
             <Link
               href="/about"
               className="text-xl after:bg-gray-800 dark:after:bg-gray-200"
@@ -91,11 +93,11 @@ export default async function Home() {
             </div>
           </Providers>
         </section>
-        <section className="w-full h-fit flex flex-col items-center justify-center gap-2 p-24">
+        <section className="w-full h-fit flex flex-col items-center justify-center gap-2 pt-24 pb-24">
           <h2 className="text-4xl">What can we do?</h2>
-          <div className="max-w-7xl w-full grid grid-cols-2 gap-y-10 pt-8">
+          <div className="max-w-7/8 lg:max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 pt-8">
             <CardDemo
-              className="bg-[url('/mods.gif')] "
+              className="bg-[url('/mods.gif')]"
               title="Search Mods"
               text="Search quickly. Find out details. Add mods you want."
             />

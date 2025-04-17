@@ -1,7 +1,11 @@
 "use client";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Menu as MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { navItems } from "@/lib/constants";
@@ -13,12 +17,11 @@ export default function MobileNav() {
       <div className="md:hidden flex items-center justify-between text-primary">
         {/* This button will trigger open the mobile sheet menu */}
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MenuIcon />
-          </Button>
+          <MenuIcon size={24} />
         </SheetTrigger>
       </div>
       <SheetContent side="left">
+        <SheetTitle>Menu</SheetTitle>
         <div className="flex flex-col items-start">
           {Array.from(navItems).map(([key, value]) => (
             <Link
