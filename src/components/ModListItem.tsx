@@ -6,6 +6,11 @@ import { Pin, PinOff, X } from "lucide-react";
 import { ColorPicker } from "./ColorPicker";
 import { useModColorStore } from "@/stores/useModColorStore";
 import { useConstraintsStore } from "@/stores/useConstraintsStore";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "./ui/tooltip";
 interface ModListItemProps {
   mod: IMod;
   onIndexChange: (mod: IMod, newIndex: string) => void;
@@ -58,9 +63,19 @@ const ModListItem: React.FC<ModListItemProps> = ({
           }}
         />
         <ColorPicker background={background} setBackground={setBackground} />
-        <div onClick={() => setLocked(!locked)} className="cursor-pointer">
-          {locked ? <Pin /> : <PinOff />}
-        </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <div
+                onClick={() => setLocked(!locked)}
+                className="cursor-pointer"
+              >
+                {locked ? <Pin /> : <PinOff />}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Lock this index for timetable generation</p>
+            </TooltipContent>
+          </Tooltip>
       </div>
     </div>
   );

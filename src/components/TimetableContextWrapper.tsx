@@ -8,6 +8,7 @@ import {
 import { UserTimetablesContext } from "@/context/TimetableContexts";
 import { ModInfoBasic } from "@/types/modtypes";
 import { timetable } from "@prisma/client";
+import { TooltipProvider } from "./ui/tooltip";
 
 interface TimetableAppWrapperProps {
   initialTimetable: timetable | null;
@@ -24,7 +25,9 @@ export default function TimetableAppWrapper({
     <InitialTimetableContext.Provider value={initialTimetable}>
       <UserTimetablesContext.Provider value={userTimetables}>
         <ModListContext.Provider value={modListData}>
+          <TooltipProvider>
             <TimetableApp />
+          </TooltipProvider>
         </ModListContext.Provider>
       </UserTimetablesContext.Provider>
     </InitialTimetableContext.Provider>
