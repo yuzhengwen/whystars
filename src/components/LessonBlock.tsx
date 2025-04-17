@@ -50,6 +50,7 @@ const LessonBlock = ({
       onMouseEnter={() => setHoveredMod(lesson.courseCode)}
       onMouseLeave={() => setHoveredMod("")}
       onClick={() => {
+        setHoveredMod("");
         onClick(lesson);
       }}
     >

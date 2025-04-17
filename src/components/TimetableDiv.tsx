@@ -11,11 +11,11 @@ import LessonBlock from "./LessonBlock";
 import { createTimeGrid, mapLessonColumns } from "@/lib/timetableUtils";
 import { useTimetableStore } from "@/stores/useTimetableStore";
 import { IMod } from "@/lib/models/modModel";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "@/styles/animations.css";
 import { useShallow } from "zustand/shallow";
 import { useInteractivityStore } from "@/stores/useInteractivityStore";
-import { TimetableGrid } from "@/types/TimetableGrid";
+import { useTimetableGrid } from "@/hooks/useTimetableGrid";
 
 const timeSlotHeight = 3; // 3rem
 
@@ -32,7 +32,7 @@ export default function TimetableDiv({
   fixedHeight?: boolean;
   modColors: Record<string, string>;
 }) {
-  const { setCourseIndex } = useTimetableStore();
+  const setCourseIndex = useTimetableStore((state) => state.setCourseIndex);
 
   // client side state to track current selected and hovered mods
   const { hoveredMod, selectedMod, setSelectedMod } = useInteractivityStore(
@@ -78,16 +78,18 @@ export default function TimetableDiv({
     setModIndexes(newIndexes);
   }, [mods, modIndexesBasic]);
 
-  // potentially fit this entire chunk in useMemo? Currently causes rendering issues due to dependencies
-  const { days, times, grid } = createTimeGrid();
-  // populate the grid with lessons
-  modIndexes.forEach((mod) => {
-    if (mod.lessons && mod.lessons.length > 0) {
+  const expandedModIndexes = useRef<Set<string>>(new Set());
+  // this is the grid that will be displayed in the timetable
+  const { days, times, grid } = useMemo(() => {
+    const result = createTimeGrid();
+    modIndexes.forEach((mod) => {
+      if (!mod.lessons?.length) return;
       mod.lessons.forEach((lesson) => {
-        // skip lectures for indexes that are expanded but not selected (since lectures are all same time)
         if (
+          // dont show lectures of expanded mods
+          // this is to prevent showing the same lecture multiple times when expanded
           lesson.lesson_type.toLowerCase().includes("lec") &&
-          isExpandedFrom(mod, selectedMod)
+          expandedModIndexes.current.has(mod.courseCode + "-" + mod.index)
         )
           return;
         const {
@@ -95,51 +97,51 @@ export default function TimetableDiv({
           timeRange: { startTime, duration },
         } = parseLessonTiming(lesson);
         const rowSpan = Math.ceil(duration / 30);
-        grid[day][startTime].push(createModLesson(mod, lesson, rowSpan));
+        result.grid[day][startTime].push(createModLesson(mod, lesson, rowSpan));
       });
-    }
-  });
-  const columns = mapLessonColumns(grid);
+    });
+    return result;
+  }, [modIndexes]);
+  const columns = useMemo(() => mapLessonColumns(grid), [grid]);
 
   const removeAllButClicked = (clicked: ModIndexBasic) => {
     setModIndexes((prev) =>
       prev.filter((mod) => !isExpandedFrom(mod, clicked))
     );
+    expandedModIndexes.current.clear();
   };
-  const expandMod = (clicked: ModIndexBasic): ModIndex[] => {
+  const expandMod = (clicked: ModIndexBasic) => {
     const mod = mods.find((mod) => mod.course_code === clicked.courseCode);
-    if (!mod || mod.indexes.length == 1) return [];
-    // add all indexes of the clicked mod
-    const newIndexes = mod.indexes
-      .map((index) => ({
+    if (!mod || mod.indexes.length == 1) return; // no indexes to expand to
+    const newIndexes: ModIndex[] = [];
+    // do everything in a single loop
+    for (const index of mod.indexes) {
+      if (index.index === clicked.index) continue; // skip the index being clicked
+      newIndexes.push({
         courseName: mod.course_name,
         courseCode: mod.course_code,
         index: index.index,
         lessons: index.lessons,
-        selected: false,
-      }))
-      // remove the index being clicked from the newIndexes
-      .filter((index) => index.index !== clicked.index);
-    return newIndexes;
+      });
+      expandedModIndexes.current.add(`${mod.course_code}-${index.index}`);
+    }
+    setModIndexes((prev) => [...prev, ...newIndexes]);
+    setSelectedMod(clicked);
   };
 
   const handleClick = (clicked: ModLesson) => {
     if (!interactive) return;
     // havent clicked anything yet
     if (!selectedMod) {
-      const newIndexes = expandMod(clicked);
-      if (newIndexes.length === 0) return;
-      setModIndexes((prev) => [...prev, ...newIndexes]);
-      setSelectedMod(clicked);
+      expandMod(clicked);
     } else if (!isExpandedFrom(clicked, selectedMod)) {
       // clicked a different mod during selection
       if (selectedMod.courseCode !== clicked.courseCode) {
         removeAllButClicked(selectedMod);
         expandMod(clicked);
-        setSelectedMod(clicked);
         return;
       }
-      // clicked the same mod that was already selected
+      // clicked the same mod that was already selected, deselect
       removeAllButClicked(clicked);
       setSelectedMod(null);
     } else if (isExpandedFrom(clicked, selectedMod)) {
@@ -147,36 +149,20 @@ export default function TimetableDiv({
       // the changes will be reflected in modIndexes, which will update the timetable
       setCourseIndex(clicked.courseCode, clicked.courseName, clicked.index);
       setSelectedMod(null);
+      expandedModIndexes.current.clear();
+      // NOTE: this setSelectedMod should NOT be relied on to render the timetable and skip rendering repeated lectures
+      // this is because setCourseIndex and setSelected mod are async
+      // IF selectedMod finishes updating BEFORE modIndexes is updated, it will trigger grid to re-create and re-render timetable
+      // since selectedMod is now null, it will render ALL lectures of ALL expanded mods (Can lead to hundreds of lesson blocks)
+      // and then once modIndexes updates, it then renders the correct timetable with no expanded mods
+      // Instead we rely on the expandedModIndexes to determine if a lesson should be shown or not, timetable ONLY re-renders when modIndexes changes
+      // expandedModIndexes is a ref, so it can be mutated without causing re-renders
     }
   };
-
-  // filter out time slots unused
-  const [timetableGrid, setTimetableGrid] = useState<TimetableGrid>(
-    new TimetableGrid()
+  const { earliestStartTime, latestEndTime } = useTimetableGrid(
+    mods,
+    modIndexesBasic
   );
-  const earliestStartTime = useMemo(() => {
-    return timetableGrid.isEmpty()
-      ? "No Mods Selected"
-      : timetableGrid.findEarliestStartTime();
-  }, [timetableGrid]);
-  const latestEndTime = useMemo(() => {
-    return timetableGrid.isEmpty()
-      ? "No Mods Selected"
-      : timetableGrid.findLatestEndTime();
-  }, [timetableGrid]);
-  useEffect(() => {
-    const newGrid = new TimetableGrid();
-    mods.forEach((mod) => {
-      newGrid.addIndex(
-        createModIndexWithString(
-          mod,
-          modIndexesBasic.find((m) => m.courseCode == mod.course_code)?.index ??
-            mod.indexes[0].index
-        )
-      );
-      setTimetableGrid(newGrid);
-    });
-  }, [mods, modIndexesBasic]);
 
   //filter out time slots unused
   const filteredTimes = fixedHeight

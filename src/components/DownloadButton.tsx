@@ -11,7 +11,7 @@ import {
 } from "./ui/dropdown-menu";
 
 const DownloadButton = () => {
-  const { modIndexesBasic } = useTimetableStore();
+  const modIndexesBasic = useTimetableStore((state) => state.modIndexesBasic);
   function downloadJson() {
     const fileName = "timetable.json";
     const contentType = "text/plain";

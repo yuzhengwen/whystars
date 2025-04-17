@@ -6,7 +6,7 @@ import { useTimetableStore } from "@/stores/useTimetableStore";
 import { useRouter } from "next/navigation";
 
 const AddModButton = ({ mod }: { mod: IMod }) => {
-  const { setCourseIndex } = useTimetableStore();
+  const setCourseIndex = useTimetableStore((state) => state.setCourseIndex);
   const router = useRouter();
   const handleClick = () => {
     setCourseIndex(mod.course_code, mod.course_name, mod.indexes[0].index);

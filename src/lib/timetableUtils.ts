@@ -1,7 +1,7 @@
 import { ModIndexBasic, ModLesson } from "@/types/modtypes";
 import { parseLessonTiming } from "./dates";
 import { ILesson } from "./models/modModel";
-import { days, times } from "@/lib/constants";
+import { days as defaultDays, times as defaultTimes } from "@/lib/constants";
 
 /**
  *
@@ -71,8 +71,10 @@ const groupLessonsByColumns = (lessons: ModLesson[]): ModLesson[][] => {
  *
  * @returns An object containing the days, times, and the initialized grid.
  * */
-export const createTimeGrid = () => {
+export const createTimeGrid = (days?: string[], times?: string[]) => {
   const grid: Record<string, Record<string, ModLesson[]>> = {};
+  days = days || defaultDays;
+  times = times || defaultTimes;
   days.forEach((day) => {
     grid[day] = {};
     times.forEach((time) => {
@@ -120,7 +122,7 @@ export function checkModLessonsOverlap(lessons: ModLesson[]) {
   // populating busy times
   for (const lesson of lessons) {
     const { day } = parseLessonTiming(lesson);
-    const overlapTimes = getLessonTimeOverlaps(lesson, times);
+    const overlapTimes = getLessonTimeOverlaps(lesson, defaultTimes);
     if (!busySchedules[day]) busySchedules[day] = {};
     const timeSlots = busySchedules[day]!;
     for (const time of overlapTimes) {
@@ -166,12 +168,12 @@ export function checkModLessonsOverlap(lessons: ModLesson[]) {
     clashingModIndexes: clashingModIndexes.values().toArray(),
   };
 }
-export function checkLessonTimesOverlap(lessons: ILesson[]){
+export function checkLessonTimesOverlap(lessons: ILesson[]) {
   const busyTimes: Record<string, string[]> = {};
   lessons.forEach((lesson) => {
     const { day } = parseLessonTiming(lesson);
     if (!busyTimes[day]) busyTimes[day] = [];
-    const overlapTimes = getLessonTimeOverlaps(lesson, times);
+    const overlapTimes = getLessonTimeOverlaps(lesson, defaultTimes);
     busyTimes[day].push(...overlapTimes);
   });
   for (const day in busyTimes) {
