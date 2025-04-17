@@ -140,20 +140,8 @@ export function checkModLessonsOverlap(lessons: ModLesson[]) {
     }
   }
   for (const overlappingLessons of overlappingLessonSets) {
-    // determine if lessons overlap in weeks
-    const lessonWeeks: number[] = [];
-    overlappingLessons.forEach((lesson) => {
-      const weeks = extractLessonWeeks(lesson);
-      lessonWeeks.push(...weeks);
-    });
-    if (new Set(lessonWeeks).size === lessonWeeks.length) continue;
-    // determine if lessons are from the same course
-    if (
-      overlappingLessons.every(
-        (lesson) => lesson.courseCode === overlappingLessons[0].courseCode
-      )
-    )
-      continue;
+    // lessons overlap in time but are legal to overlap
+    if (checkLessonsLegalOverlap(overlappingLessons)) continue;
     // else, add to clashingModIndexes
     const modIndexesBasic = overlappingLessons.map(
       (lesson) => lesson as ModIndexBasic
@@ -167,6 +155,32 @@ export function checkModLessonsOverlap(lessons: ModLesson[]) {
     isValid: clashingModIndexes.size === 0,
     clashingModIndexes: clashingModIndexes.values().toArray(),
   };
+}
+/**
+ * Checks if a set of lessons are allowed to overlap in time
+ * Currently under 2 conditions it is legal:
+ * 1. If the lessons are from the same course
+ * 2. If the lessons are on different weeks
+ * @param overlappingLessons lessons that overlap in timeslots
+ */
+export function checkLessonsLegalOverlap(
+  overlappingLessons: ModLesson[]
+): boolean {
+  // determine if lessons overlap in weeks
+  const lessonWeeks: number[] = [];
+  overlappingLessons.forEach((lesson) => {
+    const weeks = extractLessonWeeks(lesson);
+    lessonWeeks.push(...weeks);
+  });
+  if (new Set(lessonWeeks).size === lessonWeeks.length) return true;
+  // determine if lessons are from the same course
+  if (
+    overlappingLessons.every(
+      (lesson) => lesson.courseCode === overlappingLessons[0].courseCode
+    )
+  )
+    return true;
+  return false;
 }
 export function checkLessonTimesOverlap(lessons: ILesson[]) {
   const busyTimes: Record<string, string[]> = {};

@@ -2,9 +2,10 @@
 import { IIndex, IMod } from "@/lib/models/modModel";
 import React, { useEffect, useState } from "react";
 import { ComboboxDemo } from "./ui/combobox";
-import { X } from "lucide-react";
+import { Pin, PinOff, X } from "lucide-react";
 import { ColorPicker } from "./ColorPicker";
 import { useModColorStore } from "@/stores/useModColorStore";
+import { useConstraintsStore } from "@/stores/useConstraintsStore";
 interface ModListItemProps {
   mod: IMod;
   onIndexChange: (mod: IMod, newIndex: string) => void;
@@ -17,12 +18,21 @@ const ModListItem: React.FC<ModListItemProps> = ({
   onRemove,
   defaultIndex,
 }) => {
+  // lock
+  const [locked, setLocked] = useState(false);
+  const toggleLocked = useConstraintsStore((state) => state.toggleLocked);
+  useEffect(() => {
+    toggleLocked(mod.course_code, locked);
+  }, [locked, mod.course_code, toggleLocked]);
+
+  // color
   const [background, setBackground] = useState("#c82461");
   const setModColor = useModColorStore((state) => state.setModColor);
   useEffect(() => {
     setModColor(mod.course_code, background);
     console.log(`Setting color for ${mod.course_code} to ${background}`);
   }, [mod.course_code, background, setModColor]);
+
   return (
     <div className="flex flex-col items-start w-full p-4 border-b-2">
       <div className="flex w-full">
@@ -48,6 +58,9 @@ const ModListItem: React.FC<ModListItemProps> = ({
           }}
         />
         <ColorPicker background={background} setBackground={setBackground} />
+        <div onClick={() => setLocked(!locked)} className="cursor-pointer">
+          {locked ? <Pin /> : <PinOff />}
+        </div>
       </div>
     </div>
   );
