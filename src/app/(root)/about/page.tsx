@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default async function Home() {
   return (
     <div className="flex flex-col items-start justify-center w-5/6 md:w-2xl p-4 m-5">
@@ -23,6 +25,12 @@ export default async function Home() {
         <li>Much more...</li>
         <li>You can request them too!</li>
       </ul>
+      <h1 className="mt-4 text-3xl">Have Feedback/Suggestions?</h1>
+      <p className="mt-2 text-lg">
+        <Link href="/contact" className="text-blue-600">
+          Contact me here
+        </Link>
+      </p>
       <h1 className="mt-4 text-3xl">Source Code</h1>
       <p className="text-blue-700 mt-4 text-lg hover:text-blue-600 hover:underline cursor-pointer">
         <a
@@ -35,9 +43,8 @@ export default async function Home() {
       </p>
       <p className="mt-2 text-m">
         This is a one developer project, if you would like to contribute, feel
-        free to fork the repo and create a pull request. I would love to see
-        your contributions! If you have any suggestions or feedback, please feel
-        free to create an issue on GitHub.
+        free to visit the source repository and follow the README. I would love to see
+        your contributions! 
       </p>
       <h2 className="mt-4 text-2xl">Stack</h2>
       <ul className="mt-4 text-m list-disc list-inside">
