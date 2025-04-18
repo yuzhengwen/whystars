@@ -207,12 +207,25 @@ export function checkLessonTimesOverlap(lessons: ILesson[]) {
  */
 export function extractLessonWeeks(lesson: ILesson): number[] {
   const remark = lesson.remark;
-  // e.g. Wk2,4,6,8,10,12
-  const weekPattern = /Wk(\d+(?:,\d+)*)/;
+  // e.g. Wk2,4,6 or Wk2-4,6 or Wk5
+  const weekPattern = /Wk([\d,\-\s]+)/;
+
   const match = remark.match(weekPattern);
   if (match && match[1]) {
-    const weekNumbers = match[1].split(",").map(Number);
-    return weekNumbers;
+    const parts = match[1].split(',').map(s => s.trim());
+    const weeks: number[] = [];
+    for (const part of parts) {
+      if (part.includes('-')) {
+        const [start, end] = part.split('-').map(Number);
+        for (let i = start; i <= end; i++) {
+          weeks.push(i);
+        }
+      } else if (!isNaN(Number(part))) {
+        weeks.push(Number(part));
+      }
+    }
+
+    return weeks;
   }
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]; // default to all weeks if no match found
 }
