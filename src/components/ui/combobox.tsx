@@ -44,7 +44,7 @@ export function ComboboxDemo({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-fit min-w-[100px] xl:min-w-[200px] justify-between"
         >
           {value
             ? options.find((option) => option.value === value)?.label

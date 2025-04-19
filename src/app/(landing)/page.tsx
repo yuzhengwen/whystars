@@ -11,6 +11,7 @@ import { ModeToggleIconOnly } from "@/components/ModeToggleIconOnly";
 import { ColourfulText } from "@/components/ui/colourful-text";
 import { CardDemo } from "./landing-card";
 import MobileNav from "@/components/MobileNav";
+import FAQ from "./faq-section";
 
 const modColors: Record<string, string> = {
   SC2002: "#3F37C9",
@@ -94,7 +95,7 @@ export default async function Home() {
             </div>
           </Providers>
         </section>
-        <section className="w-full h-fit flex flex-col items-center justify-center gap-2 pt-24 pb-24">
+        <section className="w-full h-fit flex flex-col items-center justify-center gap-2 pt-24">
           <h2 className="text-4xl">What can we do?</h2>
           <div className="max-w-7/8 lg:max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 pt-8">
             <CardDemo
@@ -113,6 +114,21 @@ export default async function Home() {
               text="Save for later. Share with friends. Access anytime, anywhere."
             />
           </div>
+        </section>
+        <section className="w-full h-fit flex flex-col items-center justify-center gap-2 pt-24">
+          <FAQ />
+        </section>
+        <section className="w-full h-fit flex flex-col items-center justify-center gap-2 pt-24 pb-24">
+          <h1 className="text-4xl">Ready to Plan Your Journey?</h1>
+
+          <Link href="/plan" className="mt-4">
+            <button
+              type="button"
+              className="landing-button w-40 h-15 text-xl bg-rose-900 cursor-pointer text-gray-100 dark:text-gray-200"
+            >
+              Get Started
+            </button>
+          </Link>
         </section>
       </div>
     </>

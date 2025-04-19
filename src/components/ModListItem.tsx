@@ -40,9 +40,9 @@ const ModListItem: React.FC<ModListItemProps> = ({
 
   return (
     <div className="flex flex-col items-start w-full p-4 border-b-2">
-      <div className="flex w-full">
+      <div className="flex w-full justify-between items-start">
         <span>{mod.course_name}</span>
-        <X className="ml-auto cursor-pointer" onClick={() => onRemove(mod)} />
+        <X className="cursor-pointer flex-shrink-0" onClick={() => onRemove(mod)} />
       </div>
       <div className="mb-2">
         <span>{mod.course_code}</span>

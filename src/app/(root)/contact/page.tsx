@@ -41,7 +41,7 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col w-5/6 md:w-2xl gap-5 p-4 m-5">
+    <div className="flex flex-col w-5/6 md:w-2xl gap-5 m-5">
       <h2 className="text-3xl">Leave a feedback or suggestion!</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>

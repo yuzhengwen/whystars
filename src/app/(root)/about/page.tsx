@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default async function Home() {
   return (
-    <div className="flex flex-col items-start justify-center w-5/6 md:w-2xl p-4 m-5">
+    <div className="flex flex-col items-start justify-center w-5/6 md:w-2xl m-5">
       <h1 className="text-3xl">
         What can <span className="font-bold">Why Stars</span> do?
       </h1>

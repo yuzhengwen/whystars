@@ -2,6 +2,7 @@ import { IMod } from "@/lib/models/modModel";
 import AddModButton from "@/components/AddModButton";
 import { ModBasicInfoSchema } from "@/types/modtypes";
 import { fetchMod } from "@/actions/getMods";
+import Link from "next/link";
 
 export async function generateStaticParams() {
   const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
@@ -32,7 +33,10 @@ export default async function Page({
     );
   } else {
     return (
-      <div className="flex flex-col items-start justify-center w-5/6 md:w-2xl p-4 m-5">
+      <div className="flex flex-col items-start justify-center w-5/6 md:w-2xl m-5">
+        <Link href="/mods" className="text-blue-600 mb-4">
+          Back to Module List
+        </Link>
         <h1 className="text-3xl font-bold mb-4">{data.course_name}</h1>
         <div className="flex flex-row gap-5">
           <p className="text-lg mb-2">Course Code: {data.course_code}</p>
