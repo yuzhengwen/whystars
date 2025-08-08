@@ -1,5 +1,5 @@
 import requests
-from scraping_configs import user_agent, MODS_KEY, get_latest_semester, progress_semester
+from python.scraping_configs import user_agent, MODS_KEY, get_latest_semester, progress_semester
 
 url = "https://wish.wis.ntu.edu.sg/webexe/owa/AUS_SCHEDULE.main_display1"
 
