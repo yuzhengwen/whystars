@@ -1,7 +1,7 @@
 {
   "functions": {
     "src/app/api/scrape.py": {
-      "runtime": "python3.9"
+      "runtime": "python@3.12"
     }
   },
   "crons": [
