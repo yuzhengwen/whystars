@@ -18,7 +18,7 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             # Perform scraping and parsing in memory
-            html_data = try_fetch_new_sem()
+            html_data = try_fetch_new_sem(blob_helper)
             
             if html_data is None:
                 raise Exception("Failed to fetch data")

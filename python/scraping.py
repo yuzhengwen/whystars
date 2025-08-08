@@ -1,6 +1,5 @@
 import requests
 from python.scraping_configs import user_agent, MODS_KEY, get_latest_semester, progress_semester
-from python.blob_helper import BlobHelper
 
 url = "https://wish.wis.ntu.edu.sg/webexe/owa/AUS_SCHEDULE.main_display1"
 
@@ -31,11 +30,8 @@ def fetch_data(academic_year="2025", semester="1"):
     print("Data fetched successfully")
     return response.text
 
-def try_fetch_new_sem():
+def try_fetch_new_sem(blob_helper):
     """Try to fetch new semester data, fallback to latest if not available"""
-    # Create BlobHelper instance
-    blob_helper = BlobHelper()
-    
     latest_sem = get_latest_semester(MODS_KEY, blob_helper)
     next_sem = latest_sem.next()
     print(f"Trying to fetch mods data for {next_sem}...")
