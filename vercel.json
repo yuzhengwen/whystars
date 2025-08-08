@@ -1,16 +1,9 @@
 {
-  "builds": [
-    {
-      "src": "api/scrape.py",
-      "use": "@vercel/python"
+  "functions": {
+    "src/app/api/scrape.py": {
+      "runtime": "python3.9"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/scrape",
-      "dest": "/api/scrape.py"
-    }
-  ],
+  },
   "crons": [
     {
       "path": "/api/scrape",
