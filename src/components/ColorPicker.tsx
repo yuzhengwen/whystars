@@ -1,5 +1,5 @@
 "use client";
-
+import { solids } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -32,16 +32,6 @@ export function ColorPicker({
   setBackground: (background: string) => void;
   className?: string;
 }) {
-  const solids = [
-    "#c82461",
-    "#B5179E",
-    "#480CA8",
-    "#3F37C9",
-    "#1b998b",
-    "#3da5d9",
-    "#7dcfb6",
-    "#09203f",
-  ];
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>

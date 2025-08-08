@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "src/app/api/scrape.py": {
+      "runtime": "python3.11"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/scrape",
+      "schedule": "0 0 * * 0"
+    }
+  ]
+}

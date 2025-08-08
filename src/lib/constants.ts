@@ -32,3 +32,14 @@ function generateTimeSlots(
   slots.sort((a, b) => parseInt(a) - parseInt(b));
   return slots;
 }
+
+export const solids = [
+  "#c82461",
+  "#B5179E",
+  "#480CA8",
+  "#3F37C9",
+  "#1b998b",
+  "#3da5d9",
+  "#7dcfb6",
+  "#09203f",
+];
