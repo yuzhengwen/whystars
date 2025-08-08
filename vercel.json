@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "src/app/api/scrape.py": {}
-  },
   "crons": [
     {
       "path": "/api/scrape",
