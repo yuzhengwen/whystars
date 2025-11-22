@@ -6,8 +6,15 @@ let modListCache: ModInfoBasic[] = []; // Cache for mod list
 export async function fetchModList(): Promise<ModInfoBasic[]> {
   if (modListCache && modListCache.length > 0) return modListCache;
   try {
-    //const res = await fetch(`${baseUrl}/data/module_list.json`);
-    const res = await fetch(`${process.env.DATA_BASE_URL}/2025_2/module_list.json`);
+    // cache semester info for 8 hours
+    const semRes = await fetch(`${process.env.DATA_BASE_URL}/latest.txt`, {
+      cache: "force-cache",
+      next: { revalidate: 28800 }, // 8 hours
+    });
+    const sem: string = await semRes.text();
+    const res = await fetch(
+      `${process.env.DATA_BASE_URL}/${sem}/module_list.json`
+    );
     const data = await res.json();
     modListCache = [...data]; // Cache the fetched data
     return data;
