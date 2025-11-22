@@ -1,5 +1,5 @@
 import React from "react";
-import { auth } from "../../../../auth";
+import { auth } from "../../auth";
 import { prisma } from "@/lib/prisma";
 import UserTimetableListItem from "@/components/UserTimetableListItem";
 
