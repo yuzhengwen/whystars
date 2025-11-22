@@ -6,7 +6,8 @@ import { ModBasicInfoSchema, ModInfoBasic } from "@/types/modtypes";
 // server side fetching with cache
 export const fetchMod = async (courseCode: string): Promise<IMod> => {
   const res = await fetch(
-    `${process.env.DATA_BASE_URL}/mods/${courseCode}.json`,
+    // `${process.env.DATA_BASE_URL}/mods/${courseCode}.json`,
+    `${process.env.DATA_BASE_URL}/2025_2/module_full_data.json`,
     {
       cache: "force-cache",
       next: { revalidate: 28800 }, // 8 hours
@@ -16,10 +17,11 @@ export const fetchMod = async (courseCode: string): Promise<IMod> => {
     throw new Error("Failed to fetch data");
   }
   const data = await res.json();
-  if (!data) {
+  const mod = data.find((mod: IMod) => mod.course_code === courseCode);
+  if (!mod) {
     throw new Error("No mod found");
   }
-  return data;
+  return mod;
 };
 export const fetchMods = async (courseCodes: string[]): Promise<IMod[]> => {
   return Promise.all(
@@ -31,7 +33,7 @@ export const fetchMods = async (courseCodes: string[]): Promise<IMod[]> => {
 };
 export async function fetchModList(): Promise<ModInfoBasic[]> {
   try {
-    const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
+    const res = await fetch(`${process.env.DATA_BASE_URL}/2025_2/module_list.json`, {
       cache: "force-cache",
       next: { revalidate: 28800 }, // 8 hours
     });

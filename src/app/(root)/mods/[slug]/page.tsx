@@ -5,7 +5,7 @@ import { fetchMod } from "@/actions/getMods";
 import Link from "next/link";
 
 export async function generateStaticParams() {
-  const res = await fetch(`${process.env.DATA_BASE_URL}/module_list.json`, {
+  const res = await fetch(`${process.env.DATA_BASE_URL}/2025_2/module_list.json`, {
     cache: "force-cache",
     next: { revalidate: 28800 }, // 8 hours
   });
