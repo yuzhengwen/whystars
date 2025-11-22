@@ -1,4 +1,4 @@
-import { auth } from "../../auth";
+import { auth } from "@/auth";
 import { timetable } from "@prisma/client";
 import { redirect } from "next/navigation";
 import TimetableContextWrapper from "@/components/TimetableContextWrapper";

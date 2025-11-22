@@ -1,6 +1,6 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "../app/auth";
+import { auth } from "@/auth";
 import { ModIndexBasic } from "@/types/modtypes";
 import { Prisma, timetable } from "@prisma/client";
 
